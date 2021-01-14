@@ -7,10 +7,10 @@ import re
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 
 def find(animeName):
-	def mySort(Anime):
-		return len(Anime.name.replace(animeName, ""))
+	# def mySort(Anime):
+	# 	return len(Anime.name.replace(animeName, ""))
 
-	ret = []
+	ret = {}
 
 	search = "https://www.animeworld.tv/search?keyword={}".format(animeName.replace(" ", "%20"))
 	sb_get = requests.get(search, headers = HDR)
@@ -18,9 +18,10 @@ def find(animeName):
 
 	page_result = soupeddata.find("div", { "class" : "film-list" }).find_all("a", { "class" : "name" })
 	for x in page_result:
-		ret.append({x.get_text(): x.get("href")})
+		# ret.append({x.get_text(): x.get("href")})
+		ret[x.get_text()] = f"https://www.animeworld.tv{x.get('href')}"
 
-	ret.sort(key=mySort)
+	# ret.sort(key=mySort)
 	return ret
 	
 
