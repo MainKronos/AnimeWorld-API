@@ -20,7 +20,10 @@ print(res)
 ```
 La funzione estituirà un dizionario contentente per chiave il nome dell'anime e per valore il link della pagina di animeworld.
 ```
-{'No Game no Life': 'https://www.animeworld.tv/play/no-game-no-life.IJUH1', 'No Game No Life: Zero': 'https://www.animeworld.tv/play/no-game-no-life-zero.p-2vq'}
+{
+    'No Game no Life': 'https://www.animeworld.tv/play/no-game-no-life.IJUH1',
+    'No Game No Life: Zero': 'https://www.animeworld.tv/play/no-game-no-life-zero.p-2vq'
+}
 ```
 È Possibile anche scaricare gli episodi di un anime.
 ```python
