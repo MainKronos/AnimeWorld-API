@@ -29,6 +29,7 @@ La funzione estituirà un dizionario contentente per chiave il nome dell'anime e
 ```python
 import animeworld as aw
 
+anime = aw.Anime(link="https://www.animeworld.tv/play/danmachi-3.Ydt8-")
 for episodio in anime.getEpisodes():
     print("Episodio Numero: ", episodio.number)
         
