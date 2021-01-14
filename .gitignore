@@ -1,0 +1,7 @@
+/animeworld.egg-info/*
+/build/*
+/dist/*
+/tests/*
+__token__
+setup.py
+upload.bat
