@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
+import youtube_dl
+import re
 # import json
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
-
 
 def find(animeName):
 	def mySort(Anime):
@@ -81,7 +82,7 @@ class Anime:
 
 	#############
 
-	def getEpisode(self):
+	def getEpisodes(self): # Ritorna una lista di Episodi
 		eps = []
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		raw = {}
@@ -117,7 +118,7 @@ class Anime:
 		ret.sort(key=self.sortServer)
 		return ret
 
-	def sortServer(self, elem):
+	def sortServer(self, elem): # Ordina i server per importanza
 		if isinstance(elem, VVVVID): return 0
 		elif isinstance(elem, YouTube): return 1
 		elif isinstance(elem, AnimeWorld_Server): return 2
@@ -129,10 +130,10 @@ class Anime:
 class Episodio:
 	# links = []
 	def __init__(self, number, links):
-		self.number = int(number)
+		self.number = number
 		self.links = links
 
-	def download(self, title="Episodio"):
+	def download(self, title="Episodio"): # Scarica l'episodio con il primo link nella lista
 		return self.links[0].download(title)
 
 ### Server ###
@@ -144,11 +145,17 @@ class Server:
 		self.name = name
 		self.HDR = HDR
 
+	def sanitize(self, title):
+		illegal = ['#','%','&','{','}', '\\','<','>','*','?','/','$','!',"'",'"',':','@','+','`','|','=']
+		for x in illegal:
+			title = title.replace(x, '')
+		return title
+
 	def download(self, *args):
 		raise ServerNotSupported(self.name)
 
 class AnimeWorld_Server(Server):
-	def get_mp4Link(self):
+	def getFileLink(self):
 		anime_id = self.link.split("/")[-1]
 		video_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
 
@@ -161,7 +168,8 @@ class AnimeWorld_Server(Server):
 			return raw_ep.get("src")
 
 	def download(self, title="Episodio"):
-		r = requests.get(self.get_mp4Link(), headers = self.HDR, stream = True)
+		title = self.sanitize(title)
+		r = requests.get(self.getFileLink(), headers = self.HDR, stream = True)
 
 		if r.status_code == 200:
 			# download started 
@@ -175,18 +183,108 @@ class AnimeWorld_Server(Server):
 					return True
 		return False
 
-
 class VVVVID(Server):
-	def download(self):
-		return "VVVVID"
+	def getFileLink(self):
+		anime_id = self.link.split("/")[-1]
+		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
+
+		sb_get = requests.get(self.link, headers = self.HDR, cookies={})
+		if sb_get.status_code == 200:
+			sb_get = requests.get(external_link, headers = self.HDR, cookies={})
+			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
+			if sb_get.status_code == 200:
+					
+				raw = soupeddata.find("a", { "class" : "VVVVID-link" })
+				return raw.get("href")
+
+	def download(self, title="Episodio"):
+		title = self.sanitize(title)
+
+		class MyLogger(object):
+			def debug(self, msg):
+				pass
+			def warning(self, msg):
+				pass
+			def error(self, msg):
+				print(msg)
+				return False
+		def my_hook(d):
+			if d['status'] == 'finished':
+				return True
+
+		ydl_opts = {
+			'outtmpl': title+'.%(ext)s',
+			'logger': MyLogger(),
+			'progress_hooks': [my_hook],
+		}
+		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+			ydl.download([self.getFileLink()])
 
 class YouTube(Server):
-	def download(self):
-		return "YouTube"
+	def getFileLink(self):
+		anime_id = self.link.split("/")[-1]
+		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
+
+		sb_get = requests.get(self.link, headers = self.HDR, cookies={})
+		if sb_get.status_code == 200:
+			sb_get = requests.get(external_link, headers = self.HDR, cookies={})
+			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
+			if sb_get.status_code == 200:
+				yutubelink_raw = re.findall("https://www.youtube.com/embed/...........", soupeddata.prettify())[0]
+				return yutubelink_raw.replace("embed/", "watch?v=")
+
+	def download(self, title="Episodio"):
+		title = self.sanitize(title)
+
+		class MyLogger(object):
+			def debug(self, msg):
+				pass
+			def warning(self, msg):
+				pass
+			def error(self, msg):
+				print(msg)
+				return False
+		def my_hook(d):
+			if d['status'] == 'finished':
+				return True
+
+		ydl_opts = {
+			'outtmpl': title+'.%(ext)s',
+			'logger': MyLogger(),
+			'progress_hooks': [my_hook],
+		}
+		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+			ydl.download([self.getFileLink()])
 
 class Streamtape(Server):
-	def download(self):
-		return "Streamtape"
+	def getFileLink(self):
+		sb_get = requests.get(self.link, headers = self.HDR, cookies={})
+		if sb_get.status_code == 200:
+			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
+			site_link = soupeddata.find("div", { "id" : "external-downloads" }).find("a", { "class" : "btn-streamtape" }).get("href")
+			sb_get = requests.get(site_link, headers = self.HDR, cookies={})
+			if sb_get.status_code == 200:
+
+				soupeddata = BeautifulSoup(sb_get.content, "html.parser")
+
+				mp4_link = "https://" + re.search(r"document\.getElementById\(\'vid\'\+\'eolink\'\)\.innerHTML = \"\/\/(.+)\'\;", soupeddata.prettify()).group(1)
+				return mp4_link.replace(" ", "").replace("+", "").replace("\'", "").replace("\"", "")
+
+	def download(self, title="Episodio"):
+		title = self.sanitize(title)
+		r = requests.get(self.getFileLink(), headers = self.HDR, stream = True)
+
+		if r.status_code == 200:
+			# download started 
+			with open(f"{title}.mp4", 'wb') as f:
+				total_length = int(r.headers.get('content-length'))
+				for chunk in r.iter_content(chunk_size = 1024*1024):
+					if chunk: 
+						f.write(chunk)
+						f.flush()
+				else:
+					return True
+		return False
 
 ### ERRORS ######
 
