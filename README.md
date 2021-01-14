@@ -1,6 +1,6 @@
 ![AnimeWorld](/documentation/img/AWGIFLOGO2.gif)
 # AnimeWorld-API
-AnimeWorld-API is an unofficial library for or [AnimeWorld](https://www.animeworld.tv/) (Italian anime site).
+AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.tv/) (Italian anime site).
 
 ## Installazione
 Questa libreria richiede [Python 3.6](https://www.python.org/) o superiore.
