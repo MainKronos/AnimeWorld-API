@@ -46,4 +46,4 @@ scaricato
 ```
 
 ## Utilizzo Avanzato
-Per un utilizzo avanzato consultare la documentazione.
+Per un utilizzo avanzato consultare la [documentazione](../../wiki).
