@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="animeworld", # Replace with your own username
-    version="1.1.9",
+    version="1.1.10",
     author="MainKronos",
     author_email="lorenzo.chesi@live.it",
     description="AnimeWorld UNOFFICIAL API",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MainKronos/AnimeWorld-API",
     packages=setuptools.find_packages(),
-    install_requires=['youtube_dl', 'beautifulsoup4'],
+    install_requires=['requests', 'youtube_dl', 'beautifulsoup4'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
