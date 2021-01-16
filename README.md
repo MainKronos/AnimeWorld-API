@@ -46,5 +46,6 @@ scaricato
 ```
 
 ## Utilizzo Avanzato
-Per testare velocemete le funzionalità della libreria è possibile usare consultare il file di esempio: [`example.py`](/documentation/example.py)
+Per testare velocemete le funzionalità della libreria è possibile usare consultare il file di esempio: [`example.py`](/documentation/example.py).
+
 Per un utilizzo avanzato consultare la [documentazione](../../wiki).
