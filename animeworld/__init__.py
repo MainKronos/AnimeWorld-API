@@ -18,6 +18,13 @@ def find(animeName):
 
 	return ret
 	
+def HealthCheck(fun): # Controlla se la libreria è deprecata
+	def wrapper(*args, **kwargs):
+		try:
+			return fun(*args, **kwargs)
+		except AttributeError:
+			raise DeprecatedLibrary()
+	return wrapper
 
 class Anime:
 	# mapped = {
@@ -35,7 +42,7 @@ class Anime:
 
 	def __init__(self, link):
 		self.link = link
-		self.html = requests.get(self.link, headers = HDR, cookies={}).content
+		self.html = self.__getHTML()
 		# self.server = self.__getServer()
 		# self.nome = self.getName()
 		# self.trama = self.getTrama()
@@ -44,6 +51,14 @@ class Anime:
 	### INFO ####
 
 	# Private
+	@HealthCheck
+	def __getHTML(self):
+		r = requests.get(self.link, headers = HDR, cookies={})
+		r.raise_for_status()
+		return r.content
+
+	# Private
+	@HealthCheck
 	def __getServer(self): # Provider dove sono hostati gli episodi
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		block = soupeddata.find("span", { "class" : "servers-tabs" })
@@ -54,10 +69,12 @@ class Anime:
 		data = {int(x["data-name"]):x.get_text() for x in providers}
 		return data
 
+	@HealthCheck
 	def getTrama(self): # Trama dell'anime 
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		return soupeddata.find("div", { "class" : "desc" }).get_text()
 
+	@HealthCheck
 	def getInfo(self): # Informazioni dell'anime
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		block = soupeddata.find("div", { "class" : "info" }).find("div", { "class" : "row" })
@@ -73,12 +90,14 @@ class Anime:
 
 		return dict(zip(tName, tInfo))
 
+	@HealthCheck
 	def getName(self): # Nome dell'anime
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		return soupeddata.find("h1", { "id" : "anime-title" }).get_text()
 
 	#############
 
+	@HealthCheck
 	def getEpisodes(self): # Ritorna una lista di Episodi
 		raw = {} # dati in formato semi-grezzo
 		server = self.__getServer()
@@ -191,6 +210,7 @@ class Server:
 
 class AnimeWorld_Server(Server):
 	# Protected
+	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
 		video_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
@@ -211,6 +231,7 @@ class AnimeWorld_Server(Server):
 
 class VVVVID(Server):
 	# Protected
+	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
 		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
@@ -233,6 +254,7 @@ class VVVVID(Server):
 
 class YouTube(Server):
 	# Protected
+	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
 		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
@@ -254,6 +276,7 @@ class YouTube(Server):
 
 class Streamtape(Server):
 	# Protected
+	@HealthCheck
 	def _getFileLink(self):
 		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
 		if sb_get.status_code == 200:
@@ -284,4 +307,9 @@ class AnimeNotAvailable(Exception): # L'anime non è ancora disponibile
 	def __init__(self, animeName=''):
 		self.anime = animeName
 		self.message = f"L'anime '{animeName}' non è acora disponibile."
+		super().__init__(self.message)
+
+class DeprecatedLibrary(Exception):
+	def __init__(self):
+		self.message = "Il sito è cambiato, di conseguenza la libreria è DEPRECATA."
 		super().__init__(self.message)
