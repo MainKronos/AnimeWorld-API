@@ -266,8 +266,8 @@ class YouTube(Server):
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 		sb_get.raise_for_status()
 
-		yutubelink_raw = re.search(r'"(https:\/\/www\.youtube\.com\/watch\?v=.+)"\);', soupeddata.prettify()).group(1)
-		return yutubelink_raw
+		yutubelink_raw = re.search(r'"(https:\/\/www\.youtube\.com\/embed\/.+)"\);', soupeddata.prettify()).group(1)
+		return yutubelink_raw.replace('embed/', 'watch?v=')
 
 	def download(self, title=None):
 		if title is None: title = self._defTitle
