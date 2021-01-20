@@ -1,7 +1,7 @@
 ![AnimeWorld](/documentation/img/AWGIFLOGO2.gif)
 # AnimeWorld-API
 
-![Download](https://img.shields.io/pypi/dw/animeworld?color=%239FA8DA&style=for-the-badge)
+![Download](https://img.shields.io/pypi/dw/animeworld?style=plastic)  ![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
 
 AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.tv/) (Italian anime site).
 
