@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import youtube_dl
 import re
+import inspect
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 
@@ -23,7 +24,10 @@ def HealthCheck(fun): # Controlla se la libreria è deprecata
 		try:
 			return fun(*args, **kwargs)
 		except AttributeError:
-			raise DeprecatedLibrary()
+			frame = inspect.trace()[-1]
+			funName = frame[3]
+			errLine = frame[2]
+			raise DeprecatedLibrary(funName, errLine)
 	return wrapper
 
 class Anime:
@@ -310,6 +314,8 @@ class AnimeNotAvailable(Exception): # L'anime non è ancora disponibile
 		super().__init__(self.message)
 
 class DeprecatedLibrary(Exception):
-	def __init__(self):
-		self.message = "Il sito è cambiato, di conseguenza la libreria è DEPRECATA."
+	def __init__(self, funName, line):
+		self.funName = funName
+		self.line = line
+		self.message = f"Il sito è cambiato, di conseguenza la libreria è DEPRECATA. -> [{funName} - {line}]"
 		super().__init__(self.message)
