@@ -217,7 +217,7 @@ class AnimeWorld_Server(Server):
 	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
-		video_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
+		video_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
 		sb_get = requests.get(video_link, headers = self._HDR, cookies={})
 		sb_get.raise_for_status()
@@ -238,7 +238,8 @@ class VVVVID(Server):
 	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
-		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
+		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
+		"https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id=vKmnNB"
 
 		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
 		sb_get.raise_for_status()
@@ -261,7 +262,7 @@ class YouTube(Server):
 	@HealthCheck
 	def _getFileLink(self):
 		anime_id = self.link.split("/")[-1]
-		external_link = "https://www.animeworld.tv/api/episode/ugly/serverPlayerAnimeWorld?id={}".format(anime_id)
+		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
 		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
 		sb_get.raise_for_status()
