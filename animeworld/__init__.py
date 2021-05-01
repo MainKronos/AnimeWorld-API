@@ -5,6 +5,7 @@ import re
 import inspect
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
+cookies = {'AWCookietest': ''}
 
 def find(animeName):
 	ret = {}
@@ -46,20 +47,26 @@ class Anime:
 
 	def __init__(self, link):
 		self.link = link
-		self.html = self.__getHTML()
+		self.__setCookie()
+		self.html = self.__getHTML().content
 		# self.server = self.__getServer()
 		# self.nome = self.getName()
 		# self.trama = self.getTrama()
 		# self.info = self.getInfo()
 
 	### INFO ####
+	# Private
+	@HealthCheck
+	def __setCookie(self):
+		raw = self.__getHTML().text
+		cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', raw).group(1)
 
 	# Private
 	@HealthCheck
 	def __getHTML(self):
-		r = requests.get(self.link, headers = HDR, cookies={})
+		r = requests.get(self.link, headers = HDR, cookies=cookies)
 		r.raise_for_status()
-		return r.content
+		return r
 
 	# Private
 	@HealthCheck
@@ -219,7 +226,7 @@ class AnimeWorld_Server(Server):
 		anime_id = self.link.split("/")[-1]
 		video_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
-		sb_get = requests.get(video_link, headers = self._HDR, cookies={})
+		sb_get = requests.get(video_link, headers = self._HDR, cookies=cookies)
 		sb_get.raise_for_status()
 
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
@@ -241,10 +248,10 @@ class VVVVID(Server):
 		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 		"https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id=vKmnNB"
 
-		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
+		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
 		sb_get.raise_for_status()
 
-		sb_get = requests.get(external_link, headers = self._HDR, cookies={})
+		sb_get = requests.get(external_link, headers = self._HDR, cookies=cookies)
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 		sb_get.raise_for_status()
 					
@@ -264,10 +271,10 @@ class YouTube(Server):
 		anime_id = self.link.split("/")[-1]
 		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
-		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
+		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
 		sb_get.raise_for_status()
 
-		sb_get = requests.get(external_link, headers = self._HDR, cookies={})
+		sb_get = requests.get(external_link, headers = self._HDR, cookies=cookies)
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 		sb_get.raise_for_status()
 
@@ -283,11 +290,11 @@ class Streamtape(Server):
 	# Protected
 	@HealthCheck
 	def _getFileLink(self):
-		sb_get = requests.get(self.link, headers = self._HDR, cookies={})
+		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
 		if sb_get.status_code == 200:
 			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 			site_link = soupeddata.find("div", { "id" : "external-downloads" }).find("a", { "class" : "btn-streamtape" }).get("href")
-			sb_get = requests.get(site_link, headers = self._HDR, cookies={})
+			sb_get = requests.get(site_link, headers = self._HDR, cookies=cookies)
 			if sb_get.status_code == 200:
 
 				soupeddata = BeautifulSoup(sb_get.content, "html.parser")
