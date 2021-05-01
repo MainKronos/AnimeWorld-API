@@ -5,7 +5,7 @@ import re
 import inspect
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
-cookies = {'AWCookietest': ''}
+cookies = {'AWCookietest': None}
 
 def find(animeName):
 	ret = {}
@@ -58,8 +58,9 @@ class Anime:
 	# Private
 	@HealthCheck
 	def __setCookie(self):
-		raw = self.__getHTML().text
-		cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', raw).group(1)
+		if cookies['AWCookietest'] == None:
+			raw = self.__getHTML().text
+			cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', raw).group(1)
 
 	# Private
 	@HealthCheck
