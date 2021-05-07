@@ -52,3 +52,6 @@ scaricato
 Per testare velocemete le funzionalità della libreria è possibile usare consultare il file di esempio: [`example.py`](/documentation/example.py).
 
 Per un utilizzo avanzato consultare la [documentazione](../../wiki).
+
+
+Per l'accesso al codice sorgente, alla documentazione e agli esempi andare [**qui**](https://github.com/MainKronos/Sonarr-AnimeDownloader/issues/6).

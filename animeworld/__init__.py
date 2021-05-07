@@ -7,7 +7,10 @@ import inspect
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 cookies = {'AWCookietest': None}
 
-def find(animeName):
+
+## Function ##########################################
+
+def find(animeName): # Deprecata
 	ret = {}
 
 	search = "https://www.animeworld.tv/search?keyword={}".format(animeName.replace(" ", "%20"))
@@ -31,6 +34,10 @@ def HealthCheck(fun): # Controlla se la libreria è deprecata
 			raise DeprecatedLibrary(funName, errLine)
 	return wrapper
 
+########################################################
+
+## Class ###############################################
+
 class Anime:
 	# mapped = {
 	# 	2:"DoodStream",
@@ -47,23 +54,24 @@ class Anime:
 
 	def __init__(self, link):
 		self.link = link
-		self.__setCookie()
+		self.__fixCookie()
 		self.html = self.__getHTML().content
 		# self.server = self.__getServer()
 		# self.nome = self.getName()
 		# self.trama = self.getTrama()
 		# self.info = self.getInfo()
 
-	### INFO ####
 	# Private
-	@HealthCheck
-	def __setCookie(self):
-		if cookies['AWCookietest'] == None:
-			raw = self.__getHTML().text
-			cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', raw).group(1)
+	def __fixCookie(self):
+		try:
+			res = self.__getHTML()
+			cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', res.text).group(1)
+		except AttributeError:
+			pass
+
+	### INFO ####
 
 	# Private
-	@HealthCheck
 	def __getHTML(self):
 		r = requests.get(self.link, headers = HDR, cookies=cookies)
 		r.raise_for_status()
@@ -308,7 +316,9 @@ class Streamtape(Server):
 		else: title = self.sanitize(title)
 		return self._downloadIn(title)
 
-### ERRORS ######
+########################################################
+
+## ERRORS #############################################
 
 class ServerNotSupported(Exception): # Il server da dove si tenta di scaricare l'episodio non è supportato
 	def __init__(self, server):

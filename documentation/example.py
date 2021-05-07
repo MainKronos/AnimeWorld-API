@@ -6,7 +6,7 @@ def main():
 	try:
 		anime = aw.Anime(link="https://www.animeworld.tv/play/jaku-chara-tomozaki-kun.RDPHq")
 		
-		print("Titolo", anime.getName()) # Titolo dell'anime
+		print("Titolo:", anime.getName()) # Titolo dell'anime
 
 		print("\n----------------------------------\n")
 
