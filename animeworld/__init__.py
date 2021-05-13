@@ -5,7 +5,7 @@ import re
 import inspect
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
-cookies = {'AWCookietest': None}
+cookies = {'AWCookieVerify': None}
 
 
 ## Function ##########################################
@@ -65,7 +65,7 @@ class Anime:
 	def __fixCookie(self):
 		try:
 			res = self.__getHTML()
-			cookies['AWCookietest'] = re.search(r'document\.cookie="AWCookietest=(.+) ;', res.text).group(1)
+			cookies['AWCookieVerify'] = re.search(r'document\.cookie="AWCookieVerify=(.+) ;', res.text).group(1)
 		except AttributeError:
 			pass
 
