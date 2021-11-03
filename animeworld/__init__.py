@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import youtube_dl
 import re
 import inspect
+import time
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 cookies = {'AWCookieVerify': None}
@@ -73,7 +74,14 @@ class Anime:
 
 	# Private
 	def __getHTML(self):
-		r = requests.get(self.link, headers = HDR, cookies=cookies)
+		r = None
+		while True:
+			try:
+				r = requests.get(self.link, headers = HDR, cookies=cookies, timeout=(3, 27))
+			except requests.exceptions.ReadTimeout:
+				time.sleep(1) # errore
+			else:
+				break
 		r.raise_for_status()
 		return r
 
