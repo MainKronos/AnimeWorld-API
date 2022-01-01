@@ -4,6 +4,7 @@ import youtube_dl
 import re
 import inspect
 import time
+import os
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 cookies = {'AWCookieVerify': None}
@@ -177,8 +178,8 @@ class Episodio:
 		self.number = number # Numero dell'episodio
 		self.links = links # Array di Server()
 
-	def download(self, title=None): # Scarica l'episodio con il primo link nella lista
-		return self.links[0].download(title)
+	def download(self, title=None, folder=''): # Scarica l'episodio con il primo link nella lista
+		return self.links[0].download(title,folder)
 
 ### Server ###
 
@@ -197,14 +198,14 @@ class Server:
 			title = title.replace(x, '')
 		return title
 
-	def download(self, title=None):
+	def download(self, title=None, folder=''):
 		raise ServerNotSupported(self.name)
 
 	# Protected
-	def _downloadIn(self, title): # Scarica l'episodio
+	def _downloadIn(self, title, folder): # Scarica l'episodio
 		with requests.get(self._getFileLink(), headers = self._HDR, stream = True) as r:
 			r.raise_for_status()
-			with open(f"{title}.mp4", 'wb') as f:
+			with open(f"{os.path.join(folder,title)}.mp4", 'wb') as f:
 				for chunk in r.iter_content(chunk_size = 1024*1024):
 					if chunk: 
 						f.write(chunk)
@@ -213,7 +214,7 @@ class Server:
 		return False # Se è accaduto qualche imprevisto
 
 	# Protected
-	def _dowloadEx(self, title): # Scarica l'episodio con l'utilizzo della libreria yutube_dl
+	def _dowloadEx(self, title, folder): # Scarica l'episodio con l'utilizzo della libreria yutube_dl
 		class MyLogger(object):
 			def debug(self, msg):
 				pass
@@ -227,7 +228,7 @@ class Server:
 				return True
 
 		ydl_opts = {
-			'outtmpl': title+'.%(ext)s',
+			'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
 			'logger': MyLogger(),
 			'progress_hooks': [my_hook],
 		}
@@ -252,10 +253,10 @@ class AnimeWorld_Server(Server):
 		self._HDR["Referer"] = video_link
 		return raw_ep.get("src")
 
-	def download(self, title=None):
+	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
 		else: title = self.sanitize(title)
-		return self._downloadIn(title)
+		return self._downloadIn(title,folder)
 
 class VVVVID(Server):
 	# Protected
@@ -275,10 +276,10 @@ class VVVVID(Server):
 		raw = soupeddata.find("a", { "class" : "VVVVID-link" })
 		return raw.get("href")
 
-	def download(self, title=None):
+	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
 		else: title = self.sanitize(title)
-		return self._dowloadEx(title)
+		return self._dowloadEx(title,folder)
 		
 
 class YouTube(Server):
@@ -298,10 +299,10 @@ class YouTube(Server):
 		yutubelink_raw = re.search(r'"(https:\/\/www\.youtube\.com\/embed\/.+)"\);', soupeddata.prettify()).group(1)
 		return yutubelink_raw.replace('embed/', 'watch?v=')
 
-	def download(self, title=None):
+	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
 		else: title = self.sanitize(title)
-		return self._dowloadEx(title)
+		return self._dowloadEx(title,folder)
 
 class Streamtape(Server):
 	# Protected
@@ -319,10 +320,10 @@ class Streamtape(Server):
 				mp4_link = "https://" + re.search(r"document\.getElementById\(\'vid\'\+\'eolink\'\)\.innerHTML = \"\/\/(.+)\'\;", soupeddata.prettify()).group(1)
 				return mp4_link.replace(" ", "").replace("+", "").replace("\'", "").replace("\"", "")
 
-	def download(self, title=None):
+	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
 		else: title = self.sanitize(title)
-		return self._downloadIn(title)
+		return self._downloadIn(title,folder)
 
 ########################################################
 
