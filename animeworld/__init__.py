@@ -312,12 +312,11 @@ class Streamtape(Server):
 		if sb_get.status_code == 200:
 			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 			site_link = soupeddata.find("div", { "id" : "external-downloads" }).find("a", { "class" : "btn-streamtape" }).get("href")
-			sb_get = requests.get(site_link, headers = self._HDR, cookies=cookies)
+			sb_get = requests.get(site_link, headers = self._HDR, cookies=cookies, allow_redirects=False)
 			if sb_get.status_code == 200:
-
 				soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 
-				mp4_link = "https://" + re.search(r"document\.getElementById\(\'vid\'\+\'eolink\'\)\.innerHTML = \"\/\/(.+)\'\;", soupeddata.prettify()).group(1)
+				mp4_link = "https://stape.fun/get_video" + re.search(r"document\.getElementById\('ideoooolink'\)\.innerHTML = .*(\?id=.*?&expires=.*?&ip=.*?&token=.*?)'", soupeddata.prettify()).group(1)
 				return mp4_link.replace(" ", "").replace("+", "").replace("\'", "").replace("\"", "")
 
 	def download(self, title=None, folder=''):
