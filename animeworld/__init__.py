@@ -7,7 +7,7 @@ import time
 import os
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
-cookies = {'AWCookieVerify': None}
+cookies = {}
 
 
 ## Function ##########################################
@@ -58,6 +58,7 @@ class Anime:
 		self.link = link
 		self.__fixCookie()
 		self.html = self.__getHTML().content
+		self.__check404()
 		# self.server = self.__getServer()
 		# self.nome = self.getName()
 		# self.trama = self.getTrama()
@@ -71,20 +72,27 @@ class Anime:
 		except AttributeError:
 			pass
 
-	### INFO ####
-
 	# Private
 	def __getHTML(self):
 		r = None
 		while True:
 			try:
-				r = requests.get(self.link, headers = HDR, cookies=cookies, timeout=(3, 27))
+				r = requests.get(self.link, headers = HDR, cookies=cookies, timeout=(3, 27), allow_redirects=True)
+
+				if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
+					continue
+
 			except requests.exceptions.ReadTimeout:
 				time.sleep(1) # errore
+				
 			else:
 				break
 		r.raise_for_status()
 		return r
+	
+	# Private
+	def __check404(self):
+		if self.html.decode("utf-8").find('Errore 404') != -1: raise Error404(self.link)
 
 	# Private
 	@HealthCheck
@@ -340,9 +348,16 @@ class AnimeNotAvailable(Exception): # L'anime non è ancora disponibile
 		self.message = f"L'anime '{animeName}' non è acora disponibile."
 		super().__init__(self.message)
 
+class Error404(Exception):
+	def __init__(self, link):
+		self.link = link
+		self.message = f"Il link '{link}' porta ad una pagina inesistente."
+		super().__init__(self.message)
+
 class DeprecatedLibrary(Exception):
 	def __init__(self, funName, line):
 		self.funName = funName
 		self.line = line
 		self.message = f"Il sito è cambiato, di conseguenza la libreria è DEPRECATA. -> [{funName} - {line}]"
 		super().__init__(self.message)
+
