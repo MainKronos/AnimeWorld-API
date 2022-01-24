@@ -69,8 +69,10 @@ class Anime:
 	# Private
 	def __fixCookie(self):
 		try:
-			res = self.__getHTML()
-			cookies['AWCookieVerify'] = re.search(r'document\.cookie="AWCookieVerify=(.+) ;', res.text).group(1)
+			soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
+
+			cookies['AWCookieVerify'] = re.search(r'document\.cookie="AWCookieVerify=(.+) ;', soupeddata.prettify()).group(1)
+			
 		except AttributeError:
 			pass
 
@@ -142,7 +144,13 @@ class Anime:
 	def getEpisodes(self): # Ritorna una lista di Episodi
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 
+		self.link = "https://www.animeworld.tv" + soupeddata.select_one('li.episode > a').get('href')
+
+		soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
+
 		myHDR = {"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')}
+
+		
 
 		raw = {} # dati in formato semi-grezzo
 
@@ -155,7 +163,7 @@ class Anime:
 		provLegacy = self.__getServer() # vecchio sistema di cattura server
 
 		for ep in raw:
-			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=cookies)
+			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=cookies, timeout=(3, 27))
 			
 			data = res.json()
 
