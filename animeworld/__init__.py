@@ -153,8 +153,6 @@ class Anime:
 			raw[aElem.get('data-episode-num')] = {
 				"episodeId": aElem.get('data-episode-id')
 			}
-		
-		print()
 
 		provLegacy = self.__getServer() # vecchio sistema di cattura server
 
