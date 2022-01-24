@@ -1,3 +1,4 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 import youtube_dl
@@ -5,6 +6,7 @@ import re
 import inspect
 import time
 import os
+
 
 HDR = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'}
 cookies = {}
@@ -79,6 +81,8 @@ class Anime:
 			try:
 				r = requests.get(self.link, headers = HDR, cookies=cookies, timeout=(3, 27), allow_redirects=True)
 
+				cookies.update(r.cookies.get_dict())
+
 				if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
 					continue
 
@@ -136,38 +140,72 @@ class Anime:
 
 	@HealthCheck
 	def getEpisodes(self): # Ritorna una lista di Episodi
-		raw = {} # dati in formato semi-grezzo
-		server = self.__getServer()
 		soupeddata = BeautifulSoup(self.html, "html.parser")
-		for idProvider in server:
-			epBox = soupeddata.find("div", { "class" : "server", "data-name": str(idProvider)})
-			ep_links = epBox.find_all("a")
-			for x in ep_links:
-				if x.get_text() not in raw.keys(): raw[x.get_text()] = {}
-				raw[x.get_text()][idProvider] = "https://www.animeworld.tv" + x.get("href")
+
+		myHDR = {"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')}
+
+		myCookies = {"_csrf": cookies["_csrf"]}
+
+		raw = {} # dati in formato semi-grezzo
+
+		for liElem in soupeddata.find_all("li", {"class": "episode"}):
+			aElem = liElem.find('a')
+			raw[aElem.get('data-episode-num')] = {
+				"episodeId": aElem.get('data-episode-id')
+			}
+		
+		print()
+
+		provLegacy = self.__getServer() # vecchio sistema di cattura server
+
+		for ep in raw:
+			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=myCookies)
+			
+			data = res.json()
+
+			raw[ep]["links"] = []
+			for provID in data["links"]:
+				key = [x for x in data["links"][provID].keys() if x != 'server'][0]
+				raw[ep]["links"].append({
+					"id": int(provID),
+					"name": data["links"][provID]["server"]["name"],
+					"link": data["links"][provID][key]["link"]
+				})
+			
+			for provID in provLegacy:
+				if str(provID) in data["links"].keys(): continue
+
+				raw[ep]["links"].append({
+					"id": int(provID),
+					"name": provLegacy[provID],
+					"link": "https://www.animeworld.tv" + soupeddata.find("div", { "class" : "server", "data-name": str(provID)}).find('a', {'data-episode-num': ep}).get("href")
+				})
+			
+		
+		# print(json.dumps(raw, indent='\t'))
 
 		eps = [] # Lista di Episodio()
 		for episode in raw:
-			links = self.__setServer(server, raw[episode], episode)
+			links = self.__setServer(raw[episode]["links"], episode)
 			ep = Episodio(episode, links)
 			eps.append(ep)
 
 		return eps
 
 	# Private
-	def __setServer(self, mapp, links, numero): # Per ogni link li posizioni nelle rispettive classi
+	def __setServer(self, links, numero): # Per ogni link li posizioni nelle rispettive classi
 		ret = [] # lista dei server
-		for link in links:
-			if link == 3: 
-				ret.append(VVVVID(links[link], link, mapp[link], numero))
-			elif link == 4:
-				ret.append(YouTube(links[link], link, mapp[link], numero))
-			elif link == 9:
-				ret.append(AnimeWorld_Server(links[link], link, mapp[link], numero))
-			elif link == 8:
-				ret.append(Streamtape(links[link], link, mapp[link], numero))
+		for prov in links:
+			if prov["id"] == 3: 
+				ret.append(VVVVID(prov["link"], prov["id"], prov["name"], numero))
+			elif prov["id"] == 4:
+				ret.append(YouTube(prov["link"], prov["id"], prov["name"], numero))
+			elif prov["id"] == 9:
+				ret.append(AnimeWorld_Server(prov["link"], prov["id"], prov["name"], numero))
+			elif prov["id"] == 8:
+				ret.append(Streamtape(prov["link"], prov["id"], prov["name"], numero))
 			else:
-				ret.append(Server(links[link], link, mapp[link], numero))
+				ret.append(Server(prov["link"], prov["id"], prov["name"], numero))
 		ret.sort(key=self.__sortServer)
 		return ret
 
@@ -249,17 +287,8 @@ class AnimeWorld_Server(Server):
 	# Protected
 	@HealthCheck
 	def _getFileLink(self):
-		anime_id = self.link.split("/")[-1]
-		video_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
-		sb_get = requests.get(video_link, headers = self._HDR, cookies=cookies)
-		sb_get.raise_for_status()
-
-		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
-		raw_ep = soupeddata.find("video", { "id" : "video-player" }).find("source", { "type" : "video/mp4" })
-
-		self._HDR["Referer"] = video_link
-		return raw_ep.get("src")
+		return self.link.replace('download-file.php?id=', '')
 
 	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
@@ -305,6 +334,9 @@ class YouTube(Server):
 		sb_get.raise_for_status()
 
 		yutubelink_raw = re.search(r'"(https:\/\/www\.youtube\.com\/embed\/.+)"\);', soupeddata.prettify()).group(1)
+
+		print( yutubelink_raw.replace('embed/', 'watch?v='))
+
 		return yutubelink_raw.replace('embed/', 'watch?v=')
 
 	def download(self, title=None, folder=''):
@@ -316,16 +348,25 @@ class Streamtape(Server):
 	# Protected
 	@HealthCheck
 	def _getFileLink(self):
-		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
+
+		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies, allow_redirects=False)
+
+		with open('inde.html', 'wb') as f:
+			f.write(sb_get.content)
+
 		if sb_get.status_code == 200:
 			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
-			site_link = soupeddata.find("div", { "id" : "external-downloads" }).find("a", { "class" : "btn-streamtape" }).get("href")
-			sb_get = requests.get(site_link, headers = self._HDR, cookies=cookies, allow_redirects=False)
-			if sb_get.status_code == 200:
-				soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 
-				mp4_link = "https://stape.fun/get_video" + re.search(r"document\.getElementById\('ideoooolink'\)\.innerHTML = .*(\?id=.*?&expires=.*?&ip=.*?&token=.*?)'", soupeddata.prettify()).group(1)
-				return mp4_link.replace(" ", "").replace("+", "").replace("\'", "").replace("\"", "")
+			raw_link = re.search(r"document\.getElementById\('ideoooolink'\)\.innerHTML = (\".*'\))", soupeddata.prettify()).group(1)
+
+			raw_link = raw_link.replace('"', '').replace("'", "").replace('+', '')
+
+			raw_link_part2 = re.search(r"\((.*?)\)", raw_link).group(1)[4:]
+			raw_link_part1 = re.sub(r"\(.*?\)",'', raw_link)
+
+			mp4_link = 'http:/' + (raw_link_part1 + raw_link_part2).replace(' ', '')
+
+			return mp4_link
 
 	def download(self, title=None, folder=''):
 		if title is None: title = self._defTitle
