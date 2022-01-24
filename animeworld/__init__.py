@@ -144,8 +144,6 @@ class Anime:
 
 		myHDR = {"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')}
 
-		myCookies = {"_csrf": cookies["_csrf"]}
-
 		raw = {} # dati in formato semi-grezzo
 
 		for liElem in soupeddata.find_all("li", {"class": "episode"}):
@@ -157,7 +155,7 @@ class Anime:
 		provLegacy = self.__getServer() # vecchio sistema di cattura server
 
 		for ep in raw:
-			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=myCookies)
+			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=cookies)
 			
 			data = res.json()
 
