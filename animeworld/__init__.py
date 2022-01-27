@@ -123,7 +123,7 @@ class Anime:
 		if block == None: raise AnimeNotAvailable(self.getName())
 
 		providers = block.find_all("span", { "class" : "server-tab" })
-		data = {int(x["data-name"]):x.get_text() for x in providers}
+		data = {int(x["data-name"]):{"name": x.get_text()} for x in providers}
 		return data
 
 	@HealthCheck
@@ -162,53 +162,75 @@ class Anime:
 
 		soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
 
-		myHDR = {"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')}
-
-		
+		HDR.update({"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')})
 
 		raw = {} # dati in formato semi-grezzo
+		eps = [] # Lista di Episodio()
 
+
+		provLegacy = self.__getServer() # vecchio sistema di cattura server
+
+		raw = {}
 		for liElem in soupeddata.find_all("li", {"class": "episode"}):
 			aElem = liElem.find('a')
 			raw[aElem.get('data-episode-num')] = {
 				"episodeId": aElem.get('data-episode-id')
 			}
 
-		provLegacy = self.__getServer() # vecchio sistema di cattura server
+		for provID in provLegacy:
+			provLegacy[provID]["soup"] = soupeddata.find("div", {"class": "server", "data-name": str(provID)})
 
 		for ep in raw:
-			res = requests.post(f"https://www.animeworld.tv/api/download/{raw[ep]['episodeId']}", headers = myHDR, cookies=cookies, timeout=(3, 27))
-			
-			data = res.json()
+			epNum =ep
+			epID = raw[ep]["episodeId"]
 
-			raw[ep]["links"] = []
-			for provID in data["links"]:
-				key = [x for x in data["links"][provID].keys() if x != 'server'][0]
-				raw[ep]["links"].append({
-					"id": int(provID),
-					"name": data["links"][provID]["server"]["name"],
-					"link": data["links"][provID][key]["link"]
-				})
-			
+			legacy_links = []
+
+
 			for provID in provLegacy:
-				if str(provID) in data["links"].keys(): continue
-
-				raw[ep]["links"].append({
+				legacy_links.append({
 					"id": int(provID),
-					"name": provLegacy[provID],
-					"link": "https://www.animeworld.tv" + soupeddata.find("div", { "class" : "server", "data-name": str(provID)}).find('a', {'data-episode-num': ep}).get("href")
+					"name": provLegacy[provID]["name"],
+					"link": "https://www.animeworld.tv" + provLegacy[provID]["soup"].find('a', {'data-episode-num': ep}).get("href")
 				})
-			
-		
-		# print(json.dumps(raw, indent='\t'))
 
-		eps = [] # Lista di Episodio()
-		for episode in raw:
-			links = self.__setServer(raw[episode]["links"], episode)
-			ep = Episodio(episode, links)
+
+			ep = Episodio(epNum, f"https://www.animeworld.tv/api/download/{epID}", legacy_links)
 			eps.append(ep)
 
 		return eps
+
+class Episodio:
+	def __init__(self, number, link, legacy):
+		self.number = number # Numero dell'episodio
+		self.link = link # link post API
+		self.legacy = legacy # vecchio sistema
+
+	@property
+	def links(self): # lista dei provider dove sono hostati gli ep
+		tmp = [] # tutti i links
+
+		res = requests.post(self.link, headers = HDR, cookies=cookies, timeout=(3, 27))
+		data = res.json()
+
+		for provID in data["links"]:
+			key = [x for x in data["links"][provID].keys() if x != 'server'][0]
+			tmp.append({
+				"id": int(provID),
+				"name": data["links"][provID]["server"]["name"],
+				"link": data["links"][provID][key]["link"]
+			})
+		
+		for prov in self.legacy:
+			if str(prov['id']) in data["links"].keys(): continue
+
+			tmp.append(prov)
+
+		return self.__setServer(tmp, self.number)
+
+	def download(self, title=None, folder=''): # Scarica l'episodio con il primo link nella lista
+		
+		return self.links[0].download(title,folder)
 
 	# Private
 	def __setServer(self, links, numero): # Per ogni link li posizioni nelle rispettive classi
@@ -235,15 +257,6 @@ class Anime:
 		elif isinstance(elem, Streamtape): return 3
 		else: return 4
 
-
-
-class Episodio:
-	def __init__(self, number, links):
-		self.number = number # Numero dell'episodio
-		self.links = links # Array di Server()
-
-	def download(self, title=None, folder=''): # Scarica l'episodio con il primo link nella lista
-		return self.links[0].download(title,folder)
 
 ### Server ###
 
