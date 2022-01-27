@@ -14,18 +14,6 @@ cookies = {}
 
 ## Function ##########################################
 
-def find(animeName): # Deprecata
-	ret = {}
-
-	search = "https://www.animeworld.tv/search?keyword={}".format(animeName.replace(" ", "%20"))
-	sb_get = requests.get(search, headers = HDR)
-	soupeddata = BeautifulSoup(sb_get.content, "html.parser")
-
-	page_result = soupeddata.find("div", { "class" : "film-list" }).find_all("a", { "class" : "name" })
-	for x in page_result:
-		ret[x.get_text()] = f"https://www.animeworld.tv{x.get('href')}"
-
-	return ret
 	
 def HealthCheck(fun): # Controlla se la libreria è deprecata
 	def wrapper(*args, **kwargs):
@@ -37,6 +25,32 @@ def HealthCheck(fun): # Controlla se la libreria è deprecata
 			errLine = frame[2]
 			raise DeprecatedLibrary(funName, errLine)
 	return wrapper
+
+@HealthCheck
+def find(keyword):
+	res = requests.get("https://www.animeworld.tv", headers = HDR)
+	cookies.update(res.cookies.get_dict())
+	soupeddata = BeautifulSoup(res.content, "html.parser")
+	myHDR = {"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')}
+
+
+	res = requests.post("https://www.animeworld.tv/api/search/v2?", params = {"keyword": keyword} ,headers=myHDR, cookies=cookies)
+
+	data = res.json()["animes"]
+	data.sort(key=lambda a: a["dub"])
+
+	# with open("index.html", 'w') as f:
+	# 	json.dump(data, f, indent='\t')
+
+
+	if len(data) == 0:
+		return None
+	else:
+		return {
+			"name": data[0]["name"],
+			"link": f"https://www.animeworld.tv/play/{data[0]['link']}.{data[0]['identifier']}"
+		}
+
 
 ########################################################
 
