@@ -22,10 +22,10 @@ res = aw.find("No game no life")
 print(res)
 ```
 La funzione estituirà un dizionario contentente per chiave il nome dell'anime e per valore il link della pagina di animeworld.
-```
+```python
 {
-    'No Game no Life': 'https://www.animeworld.tv/play/no-game-no-life.IJUH1',
-    'No Game No Life: Zero': 'https://www.animeworld.tv/play/no-game-no-life-zero.p-2vq'
+	'name': 'No Game no Life',
+	'link': 'https://www.animeworld.tv/play/no-game-no-life.IJUH1'
 }
 ```
 È Possibile anche scaricare gli episodi di un anime.
@@ -52,6 +52,5 @@ scaricato
 Per testare velocemete le funzionalità della libreria è possibile usare consultare il file di esempio: [`example.py`](/documentation/example.py).
 
 Per un utilizzo avanzato consultare la [documentazione](../../wiki).
-
 
 Per l'accesso al codice sorgente, alla documentazione e agli esempi andare [**qui**](https://github.com/MainKronos/Sonarr-AnimeDownloader/issues/6).

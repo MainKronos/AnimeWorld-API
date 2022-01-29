@@ -1,3 +1,6 @@
+"""
+AnimeWorld-API
+"""
 import json
 import requests
 from bs4 import BeautifulSoup
@@ -35,7 +38,7 @@ def find(keyword: str) -> Optional[Dict]:
 
 	- `keyword`: Il nome dell'anime o una porzione di esso.
 
-	```python
+	```
 	return {
 	  name: str, # Nome dell'anime trovato
 	  link: str # Link dell'anime trovato
@@ -71,14 +74,25 @@ def find(keyword: str) -> Optional[Dict]:
 ### Server ###
 
 class Server:
+	"""
+	Attributes:
+
+	- `link`: Link del server in cui è hostato l'episodio.
+	- `Nid`: ID del server.
+	- `name`: Nome del server.
+	- `number`: Numero dell'episodio.
+
+	Methods:
+
+	- `download`: Scarica l'episodio.
+	"""
+
 	def __init__(self, link: str, Nid: int, name: str, number: str):
 		"""
-		Costruisce la classe Astratta Server.
-
 		- `link`: Link del server in cui è hostato l'episodio.
 		- `Nid`: ID del server.
 		- `name`: Nome del server.
-		- `number`: Numero dell'episodio
+		- `number`: Numero dell'episodio.
 		"""
 
 		self.link = link
@@ -88,12 +102,12 @@ class Server:
 		self.name = name
 		"""Nome del server."""
 		self.number = number
-		"""Numero dell'episodio"""
+		"""Numero dell'episodio."""
 
 		self._HDR = HDR # Protected 
 		self._defTitle = f"{self.number} - {self.name}" # nome del file provvisorio
 
-	def sanitize(self, title: str) -> str: # Toglie i caratteri illegali per i file
+	def _sanitize(self, title: str) -> str: # Toglie i caratteri illegali per i file
 		"""
 		Rimuove i caratteri illegali per il nome del file.
 
@@ -193,7 +207,7 @@ class AnimeWorld_Server(Server):
 		```
 		"""
 		if title is None: title = self._defTitle
-		else: title = self.sanitize(title)
+		else: title = self._sanitize(title)
 		return self._downloadIn(title,folder)
 
 class VVVVID(Server):
@@ -226,7 +240,7 @@ class VVVVID(Server):
 		```
 		"""
 		if title is None: title = self._defTitle
-		else: title = self.sanitize(title)
+		else: title = self._sanitize(title)
 		return self._dowloadEx(title,folder)
 		
 
@@ -262,7 +276,7 @@ class YouTube(Server):
 		```
 		"""
 		if title is None: title = self._defTitle
-		else: title = self.sanitize(title)
+		else: title = self._sanitize(title)
 		return self._dowloadEx(title,folder)
 
 class Streamtape(Server):
@@ -301,25 +315,34 @@ class Streamtape(Server):
 		```
 		"""
 		if title is None: title = self._defTitle
-		else: title = self.sanitize(title)
+		else: title = self._sanitize(title)
 		return self._downloadIn(title,folder)
 
 ## Class ###############################################
 
 class Episodio:
+	"""
+	Attributes:
+
+	- `number`: Numero dell'episodio.
+	- `links`: Lista dei server in cui è hostato l'episodio.
+
+	Methods:
+
+	- `download`: Scarica l'episodio dal primo server della lista links.
+	"""
+
 	def __init__(self, number: str, link: str, legacy: List[Dict] = []):
 		"""
-		Costruisce la classe Episodio.
-
 		- `number`: Numero dell'episodio.
 		- `link`: Link dell'endpoint dell'episodio.
 		- `legacy`: Lista di tutti i link dei server in cui sono hostati gli episodi.
 		"""
 		self.number = number 
 		"""Numero dell'episodio."""
-		self.link = link
+		self.__link = link
 		"""Link dell'endpoint dell'episodio."""
-		self.legacy = legacy
+		self.__legacy = legacy
 		"""Lista di tutti i link dei server in cui sono hostati gli episodi."""
 
 	@property
@@ -327,7 +350,7 @@ class Episodio:
 		"""
 		Ottiene la lista dei server in cui è hostato l'episodio.
 
-		```python
+		```
 		return [
 		  Server, # Classe Server
 		  ...
@@ -336,7 +359,7 @@ class Episodio:
 		"""
 		tmp = [] # tutti i links
 
-		res = requests.post(self.link, headers = HDR, cookies=cookies, timeout=(3, 27))
+		res = requests.post(self.__link, headers = HDR, cookies=cookies, timeout=(3, 27))
 		data = res.json()
 
 		for provID in data["links"]:
@@ -347,7 +370,7 @@ class Episodio:
 				"link": data["links"][provID][key]["link"]
 			})
 		
-		for prov in self.legacy:
+		for prov in self.__legacy:
 			if str(prov['id']) in data["links"].keys(): continue
 
 			tmp.append(prov)
@@ -376,7 +399,7 @@ class Episodio:
 		- `links`: Dizionario ('id', 'name', 'link') contenente le informazioni del Server in cui è hostato l'episodio.
 		- `numero`: Numero dell'episodio.
 
-		```python
+		```
 		return [
 		  Server, # Classe Server
 		  ...
@@ -413,20 +436,30 @@ class Episodio:
 
 
 class Anime:
+	"""
+	Attributes:
+
+	- `link`: Link dell'anime.
+	- `html`: Pagina web di Animeworld dell'anime.
+
+	Methods:
+
+	- `getName`: Ottiene il nome dell'anime.
+	- `getTrama`: Ottiene la trama dell'anime.
+	- `getInfo`: Ottiene le informazioni dell'anime.
+	- `getEpisodes`: Ottiene tutti gli episodi dell'anime.
+	"""
+
+
+
 	def __init__(self, link: str):
 		"""
-		Costruisce la classe Anime.
-
-		- `link`: Il link dell'anime.
+		- `link`: Link dell'anime.
 		"""
 		self.link = link
 		self.__fixCookie()
 		self.html = self.__getHTML().content
 		self.__check404()
-		# self.server = self.__getServer()
-		# self.nome = self.getName()
-		# self.trama = self.getTrama()
-		# self.info = self.getInfo()
 
 	# Private
 	def __fixCookie(self):
@@ -445,6 +478,10 @@ class Anime:
 	def __getHTML(self) -> requests.Response:
 		"""
 		Ottiene la pagina web di Animeworld dell'anime e aggiorna i cookies.
+		
+		```
+		return Response # Risposta GET
+		```
 		"""
 		r = None
 		while True:
@@ -477,10 +514,10 @@ class Anime:
 		"""
 		Ottiene tutti i server in cui sono hostati gli episodi.
 
-		```python
+		```
 		return {
 		  int: { # ID del server
-		    name: str # nome del server
+		    name: str # Nome del server
 		  },
 		  ...
 		}
@@ -504,19 +541,19 @@ class Anime:
 		"""
 		Ottiene la trama dell'anime.
 
-		```python
-		return str # trama dell'anime
+		```
+		return str # Trama dell'anime
 		```
 		"""
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 		return soupeddata.find("div", { "class" : "desc" }).get_text()
 
 	@HealthCheck
-	def getInfo(self) -> Dict[str, str]: # Informazioni dell'anime
+	def getInfo(self) -> Dict[str, str]:
 		"""
 		Ottiene le informazioni dell'anime.
 
-		```python
+		```
 		return {
 		  'Categoria': str,
 		  'Audio': str,
@@ -551,8 +588,8 @@ class Anime:
 		"""
 		Ottiene il nome dell'anime.
 
-		```python
-		return str # nome dell'anime
+		```
+		return str # Nome dell'anime
 		```
 		"""
 		soupeddata = BeautifulSoup(self.html, "html.parser")
@@ -565,7 +602,7 @@ class Anime:
 		"""
 		Ottiene tutti gli episodi dell'anime.
 
-		```python
+		```
 		return [
 		  Episodio, # Classe Episodio
 		  ...
