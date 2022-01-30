@@ -1,4 +1,4 @@
-![AnimeWorld](/documentation/img/AWGIFLOGO2.gif)
+![AnimeWorld](/documentation/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
 ![Download](https://img.shields.io/pypi/dw/animeworld)  ![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
@@ -51,4 +51,7 @@ scaricato
 ## Utilizzo Avanzato
 Per testare velocemete le funzionalità della libreria è possibile usare e consultare il file di esempio: [`example.py`](/documentation/example.py).
 
-Per un utilizzo avanzato consultare la [documentazione](../../wiki).
+Per un utilizzo avanzato consultare la [documentazione](https://github.com/MainKronos/AnimeWorld-API/wiki).
+
+## Contributing
+Se volete contribuire aprendo Issue o Pull a questa libreria siete ben accetti, tutto il codice sorgente e la documentazione è reperible su [GitHub](https://github.com/MainKronos/AnimeWorld-API).
