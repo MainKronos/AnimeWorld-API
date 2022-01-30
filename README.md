@@ -1,7 +1,10 @@
 ![AnimeWorld](/documentation/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
-![Download](https://img.shields.io/pypi/dw/animeworld)  ![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
+![Version](https://img.shields.io/pypi/v/animeworld)
+![Download](https://img.shields.io/pypi/dw/animeworld)
+![Activity](https://img.shields.io/github/commit-activity/w/MainKronos/AnimeWorld-API) 
+![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
 
 AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.tv/) (Italian anime site).
 
