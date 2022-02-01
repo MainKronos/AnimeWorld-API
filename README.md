@@ -2,7 +2,7 @@
 # AnimeWorld-API
 
 ![Version](https://img.shields.io/pypi/v/animeworld)
-![Download](https://img.shields.io/pypi/dw/animeworld)
+![Downloads](https://pepy.tech/badge/animeworld/week)
 ![Activity](https://img.shields.io/github/commit-activity/w/MainKronos/AnimeWorld-API) 
 ![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
 
