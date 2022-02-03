@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="animeworld", # Replace with your own username
-    version="1.4.8",
+    name="animeworld",
+    version="1.4.9",
     author="MainKronos",
     description="AnimeWorld UNOFFICIAL API",
     long_description=long_description,

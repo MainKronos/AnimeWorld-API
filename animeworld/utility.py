@@ -28,7 +28,7 @@ def HealthCheck(fun):
 	return wrapper
 
 @HealthCheck
-def find(keyword: str) -> Optional[Dict]:
+def find(keyword: str) -> List[Dict]:
 	"""
 	Ricerca un anime tramite le API interne di Animeworld.
 
