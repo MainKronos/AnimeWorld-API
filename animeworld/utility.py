@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 import inspect
 from typing import *
 
+import datetime
+import locale
+
 from .globals import HDR, cookies
 from .exceptions import DeprecatedLibrary
 
@@ -32,12 +35,41 @@ def find(keyword: str) -> Optional[Dict]:
 	- `keyword`: Il nome dell'anime o una porzione di esso.
 
 	```
-	return {
-	  name: str, # Nome dell'anime trovato
-	  link: str # Link dell'anime trovato
-	}
+	return [
+	  {
+	    "id": int, # ID interno di AnimeWorld
+	    "name": str, # Nome dell'anime
+	    "jtitle": str, # Nome giapponese (con caratteri latini)
+	    "studio": str, # Studio dell'anime
+	    "release": datetime, # Giorno, Mese e Anno della release dell'anime
+	    "episodes": int, # Numero di episodi
+	    "state": str, # Es. "0", "1", ...
+	    "story": str, # Trama dell'anime
+	    "categories": List[dict], # Es. [{"id": int, "name": str, "slug": str, "description": str}]
+	    "image": str, # Link dell'immagine di copertina
+	    "durationEpisodes": str, # Durata episodio
+	    "link": str # Link dell'anime
+	    "createdAt": str, # Es. "2021-10-24T18:29:34.000Z"
+	    "language": str, # Es. "jp
+	    "year": str, # Anno di rilascio dell'anime
+	    "dub": bool, # Se è doppiato o meno
+	    "season": str, # Es. "winter"
+	    "totViews": int, # Numero totale di visite alla pagina AnimeWolrd
+	    "dayViews": int, # Numero giornaliero di visite alla pagina AnimeWolrd
+	    "weekViews": int, # Numero settimanale di visite alla pagina AnimeWolrd
+	    "monthViews": int, # Numero mensile di visite alla pagina AnimeWolrd
+	    "malId": int, # ID di MyAnimeList dell'anime
+	    "anilistId": int, # ID di AniList dell'anime
+	    "mangaworldId": int, # ID di MangaWorld dell'anime
+	    "malVote": float, # Valutazione di MyanimeList
+	    "trailer": str # Link del trailer dell'anime
+	  }
+	]
 	```
 	"""
+
+	locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
+
 	res = requests.get("https://www.animeworld.tv", headers = HDR)
 	cookies.update(res.cookies.get_dict())
 	soupeddata = BeautifulSoup(res.content, "html.parser")
@@ -49,14 +81,37 @@ def find(keyword: str) -> Optional[Dict]:
 	data = res.json()["animes"]
 	data.sort(key=lambda a: a["dub"])
 
-	# with open("index.html", 'w') as f:
-	# 	json.dump(data, f, indent='\t')
-
-
 	if len(data) == 0:
 		return None
 	else:
-		return {
-			"name": data[0]["name"],
-			"link": f"https://www.animeworld.tv/play/{data[0]['link']}.{data[0]['identifier']}"
-		}
+		# return data
+		return [
+			{
+			"id": elem["id"],
+			"name": elem["name"],
+			"jtitle": elem["jtitle"],
+			"studio": elem["studio"],
+			"release": datetime.datetime.strptime(elem["release"], "%d %B %Y"),
+			"episodes": int(elem["state"]),
+			"state": elem["state"],
+			"story": elem["story"],
+			"categories": elem["categories"],
+			"image": elem["image"],
+			"durationEpisodes": elem["durationEpisodes"],
+			"link": f"https://www.animeworld.tv/play/{elem['link']}.{elem['identifier']}",
+			"createdAt": elem["createdAt"],
+			"language": elem["language"],
+			"year": elem["year"],
+			"dub": elem["dub"] != "0",
+			"season": elem["season"],
+			"totViews": elem["totViews"],
+			"dayViews": elem["dayViews"],
+			"weekViews": elem["weekViews"],
+			"monthViews": elem["monthViews"],
+			"malId": elem["malId"],
+			"anilistId": elem["anilistId"],
+			"mangaworldId": elem["mangaworldId"],
+			"malVote": elem["malVote"],
+			"trailer": elem["trailer"]
+			}for elem in data
+		]
