@@ -48,7 +48,7 @@ def find(keyword: str) -> List[Dict]:
 	    "categories": List[dict], # Es. [{"id": int, "name": str, "slug": str, "description": str}]
 	    "image": str, # Link dell'immagine di copertina
 	    "durationEpisodes": str, # Durata episodio
-	    "link": str # Link dell'anime
+	    "link": str, # Link dell'anime
 	    "createdAt": str, # Es. "2021-10-24T18:29:34.000Z"
 	    "language": str, # Es. "jp
 	    "year": str, # Anno di rilascio dell'anime
