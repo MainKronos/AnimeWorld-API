@@ -81,37 +81,33 @@ def find(keyword: str) -> List[Dict]:
 	data = res.json()["animes"]
 	data.sort(key=lambda a: a["dub"])
 
-	if len(data) == 0:
-		return None
-	else:
-		# return data
-		return [
-			{
-			"id": elem["id"],
-			"name": elem["name"],
-			"jtitle": elem["jtitle"],
-			"studio": elem["studio"],
-			"release": datetime.datetime.strptime(elem["release"], "%d %B %Y"),
-			"episodes": int(elem["state"]),
-			"state": elem["state"],
-			"story": elem["story"],
-			"categories": elem["categories"],
-			"image": elem["image"],
-			"durationEpisodes": elem["durationEpisodes"],
-			"link": f"https://www.animeworld.tv/play/{elem['link']}.{elem['identifier']}",
-			"createdAt": elem["createdAt"],
-			"language": elem["language"],
-			"year": elem["year"],
-			"dub": elem["dub"] != "0",
-			"season": elem["season"],
-			"totViews": elem["totViews"],
-			"dayViews": elem["dayViews"],
-			"weekViews": elem["weekViews"],
-			"monthViews": elem["monthViews"],
-			"malId": elem["malId"],
-			"anilistId": elem["anilistId"],
-			"mangaworldId": elem["mangaworldId"],
-			"malVote": elem["malVote"],
-			"trailer": elem["trailer"]
-			}for elem in data
-		]
+	return [
+		{
+		"id": elem["id"],
+		"name": elem["name"],
+		"jtitle": elem["jtitle"],
+		"studio": elem["studio"],
+		"release": datetime.datetime.strptime(elem["release"], "%d %B %Y"),
+		"episodes": int(elem["state"]),
+		"state": elem["state"],
+		"story": elem["story"],
+		"categories": elem["categories"],
+		"image": elem["image"],
+		"durationEpisodes": elem["durationEpisodes"],
+		"link": f"https://www.animeworld.tv/play/{elem['link']}.{elem['identifier']}",
+		"createdAt": elem["createdAt"],
+		"language": elem["language"],
+		"year": elem["year"],
+		"dub": elem["dub"] != "0",
+		"season": elem["season"],
+		"totViews": elem["totViews"],
+		"dayViews": elem["dayViews"],
+		"weekViews": elem["weekViews"],
+		"monthViews": elem["monthViews"],
+		"malId": elem["malId"],
+		"anilistId": elem["anilistId"],
+		"mangaworldId": elem["mangaworldId"],
+		"malVote": elem["malVote"],
+		"trailer": elem["trailer"]
+		}for elem in data
+	]
