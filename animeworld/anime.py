@@ -210,22 +210,21 @@ class Anime:
 		for provID in provLegacy:
 			provLegacy[provID]["soup"] = soupeddata.find("div", {"class": "server", "data-name": str(provID)})
 
-		for ep in raw:
-			epNum =ep
-			epID = raw[ep]["episodeId"]
-
+		for epNum in raw:
+			epID = raw[epNum]["episodeId"]
 			legacy_links = []
 
-
 			for provID in provLegacy:
-				legacy_links.append({
-					"id": int(provID),
-					"name": provLegacy[provID]["name"],
-					"link": "https://www.animeworld.tv" + provLegacy[provID]["soup"].find('a', {'data-episode-num': ep}).get("href")
-				})
+				soup_link = provLegacy[provID]["soup"].find('a', {'data-episode-num': epNum})
+
+				if soup_link:
+					legacy_links.append({
+						"id": int(provID),
+						"name": provLegacy[provID]["name"],
+						"link": "https://www.animeworld.tv" + soup_link.get("href")
+					})
 
 
-			ep = Episodio(epNum, f"https://www.animeworld.tv/api/download/{epID}", legacy_links)
-			eps.append(ep)
+			eps.append(Episodio(epNum, f"https://www.animeworld.tv/api/download/{epID}", legacy_links))
 
 		return eps
