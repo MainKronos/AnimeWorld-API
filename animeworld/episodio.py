@@ -1,7 +1,6 @@
 """
 Modulo contenente la struttura a classe degli episodi.
 """
-from tkinter.messagebox import NO
 import requests
 from bs4 import BeautifulSoup
 from typing import *
