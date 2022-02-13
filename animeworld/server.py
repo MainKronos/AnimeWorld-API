@@ -62,13 +62,16 @@ class Server:
 			title = title.replace(x, '')
 		return title
 
-	def download(self, title: Optional[str]=None, folder: str='') -> NoReturn:
+	def download(self, title: Optional[str]=None, folder: str='') -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
 		
+		```
+		return str # File scaricato
+		```
 		"""
 		raise ServerNotSupported(self.name)
 
@@ -86,16 +89,19 @@ class Server:
 		"""
 		with requests.get(self._getFileLink(), headers = self._HDR, stream = True) as r:
 			r.raise_for_status()
-			with open(f"{os.path.join(folder,title)}.mp4", 'wb') as f:
+			ext = r.headers['content-type'].split('/')[-1]
+			if ext == 'octet-stream': ext = 'mp4'
+			file = f"{title}.{ext}"
+			with open(f"{os.path.join(folder,file)}", 'wb') as f:
 				for chunk in r.iter_content(chunk_size = 1024*1024):
 					if chunk: 
 						f.write(chunk)
 				else:
-					return True # Se il file è stato scaricato correttamente
-		return False # Se è accaduto qualche imprevisto
+					return file # Se il file è stato scaricato correttamente
+		return None # Se è accaduto qualche imprevisto
 
 	# Protected
-	def _dowloadEx(self, title: str, folder: str):
+	def _dowloadEx(self, title: str, folder: str) -> Optional[str]:
 		"""
 		Scarica il file utilizzando yutube_dl.
 
@@ -103,7 +109,7 @@ class Server:
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
 
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		class MyLogger(object):
@@ -124,8 +130,11 @@ class Server:
 			'progress_hooks': [my_hook],
 		}
 		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-			ydl.download([self._getFileLink()])
-			return True
+			url = self._getFileLink()
+			info = ydl.extract_info(url, download=False)
+			filename = ydl.prepare_filename(info)
+			ydl.download([url])
+			return filename
 
 
 class AnimeWorld_Server(Server):

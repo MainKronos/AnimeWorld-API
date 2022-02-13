@@ -1,6 +1,7 @@
 """
 Modulo contenente la struttura a classe degli episodi.
 """
+from tkinter.messagebox import NO
 import requests
 from bs4 import BeautifulSoup
 from typing import *
@@ -66,7 +67,7 @@ class Episodio:
 
 		return self.__setServer(tmp, self.number)
 
-	def download(self, title: Optional[str]=None, folder: str='') -> Union[bool, NoReturn]: # Scarica l'episodio con il primo link nella lista
+	def download(self, title: Optional[str]=None, folder: str='') -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
 		Scarica l'episodio dal primo server della lista links.
 
@@ -74,7 +75,7 @@ class Episodio:
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
 		
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		
