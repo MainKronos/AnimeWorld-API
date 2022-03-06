@@ -66,12 +66,13 @@ class Episodio:
 
 		return self.__setServer(tmp, self.number)
 
-	def download(self, title: Optional[str]=None, folder: str='') -> Optional[str]: # Scarica l'episodio con il primo link nella lista
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
 		Scarica l'episodio dal primo server della lista links.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return str # File scaricato

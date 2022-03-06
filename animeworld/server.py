@@ -7,6 +7,7 @@ import youtube_dl
 import re
 import os
 from typing import *
+from alive_progress import alive_bar
 
 from .globals import HDR, cookies
 from .utility import HealthCheck
@@ -62,12 +63,13 @@ class Server:
 			title = title.replace(x, '')
 		return title
 
-	def download(self, title: Optional[str]=None, folder: str='') -> Optional[str]:
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return str # File scaricato
@@ -76,12 +78,13 @@ class Server:
 		raise ServerNotSupported(self.name)
 
 	# Protected
-	def _downloadIn(self, title: str, folder: str) -> bool: # Scarica l'episodio
+	def _downloadIn(self, title: str, folder: str, show_progress: bool) -> bool: # Scarica l'episodio
 		"""
 		Scarica il file utilizzando requests.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 
 		```
 		return bool # File scaricato
@@ -92,49 +95,59 @@ class Server:
 			ext = r.headers['content-type'].split('/')[-1]
 			if ext == 'octet-stream': ext = 'mp4'
 			file = f"{title}.{ext}"
-			with open(f"{os.path.join(folder,file)}", 'wb') as f:
-				for chunk in r.iter_content(chunk_size = 1024*1024):
+
+			total_length = int(r.headers.get('content-length'))
+			with open(f"{os.path.join(folder,file)}", 'wb') as f, alive_bar(total_length//65536+1, disable = not show_progress, length = 80, monitor = "[{percent:.0%}]", stats ="(ETA: {eta})", stats_end=False) as bar:
+				for chunk in r.iter_content(chunk_size = 65536):
 					if chunk: 
 						f.write(chunk)
+						f.flush()
+					bar()
 				else:
 					return file # Se il file è stato scaricato correttamente
 		return None # Se è accaduto qualche imprevisto
 
 	# Protected
-	def _dowloadEx(self, title: str, folder: str) -> Optional[str]:
+	def _dowloadEx(self, title: str, folder: str, show_progress: bool) -> Optional[str]:
 		"""
 		Scarica il file utilizzando yutube_dl.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 
 		```
 		return str # File scaricato
 		```
 		"""
-		class MyLogger(object):
-			def debug(self, msg):
-				pass
-			def warning(self, msg):
-				pass
-			def error(self, msg):
-				print(msg)
-				return False
-		def my_hook(d):
-			if d['status'] == 'finished':
-				return True
 
-		ydl_opts = {
-			'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
-			'logger': MyLogger(),
-			'progress_hooks': [my_hook],
-		}
-		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-			url = self._getFileLink()
-			info = ydl.extract_info(url, download=False)
-			filename = ydl.prepare_filename(info)
-			ydl.download([url])
-			return filename
+		with alive_bar(disable = not show_progress, length = 80, monitor = "[{percent:.0%}]", stats ="(ETA: {eta})", stats_end=False, manual=True) as bar:
+			class MyLogger(object):
+				def debug(self, msg):
+					pass
+				def warning(self, msg):
+					pass
+				def error(self, msg):
+					print(msg)
+					return False
+					
+			def my_hook(d):
+				if d['status'] == 'downloading':
+					bar(float(d['downloaded_bytes'])/float(d['total_bytes_estimate']))
+				if d['status'] == 'finished':
+					return True
+
+			ydl_opts = {
+				'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
+				'logger': MyLogger(),
+				'progress_hooks': [my_hook],
+			}
+			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+				url = self._getFileLink()
+				info = ydl.extract_info(url, download=False)
+				filename = ydl.prepare_filename(info)
+				ydl.download([url])
+				return filename
 
 
 class AnimeWorld_Server(Server):
@@ -144,12 +157,13 @@ class AnimeWorld_Server(Server):
 
 		return self.link.replace('download-file.php?id=', '')
 
-	def download(self, title: Optional[str]=None, folder: str='') -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return bool # File scaricato
@@ -157,7 +171,7 @@ class AnimeWorld_Server(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder)
+		return self._downloadIn(title,folder,show_progress)
 
 class VVVVID(Server):
 	# Protected
@@ -177,12 +191,13 @@ class VVVVID(Server):
 		raw = soupeddata.find("a", { "class" : "VVVVID-link" })
 		return raw.get("href")
 
-	def download(self, title: Optional[str]=None, folder: str='') -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return bool # File scaricato
@@ -190,7 +205,7 @@ class VVVVID(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder)
+		return self._dowloadEx(title,folder,show_progress)
 		
 
 class YouTube(Server):
@@ -213,12 +228,13 @@ class YouTube(Server):
 
 		return yutubelink_raw.replace('embed/', 'watch?v=')
 
-	def download(self, title: Optional[str]=None, folder: str='') -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return bool # File scaricato
@@ -226,7 +242,7 @@ class YouTube(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder)
+		return self._dowloadEx(title,folder,show_progress)
 
 class Streamtape(Server):
 	# Protected
@@ -252,12 +268,13 @@ class Streamtape(Server):
 
 			return mp4_link
 
-	def download(self, title: Optional[str]=None, folder: str='') -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
+		- `show_progress`: Mostra la barra di avanzamento.
 		
 		```
 		return bool # File scaricato
@@ -265,4 +282,4 @@ class Streamtape(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder)
+		return self._downloadIn(title,folder,show_progress)

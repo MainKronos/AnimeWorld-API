@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 import inspect
 from typing import *
 
-import datetime
+from datetime import datetime
+import time
 import locale
 
 from .globals import HDR, cookies
@@ -87,7 +88,7 @@ def find(keyword: str) -> List[Dict]:
 		"name": elem["name"],
 		"jtitle": elem["jtitle"],
 		"studio": elem["studio"],
-		"release": datetime.datetime.strptime(elem["release"], "%d %B %Y"),
+		"release": datetime.strptime(elem["release"], "%d %B %Y"),
 		"episodes": int(elem["state"]),
 		"state": elem["state"],
 		"story": elem["story"],
