@@ -5,14 +5,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="animeworld",
-    version="1.4.12",
+    version="1.4.13",
     author="MainKronos",
     description="AnimeWorld UNOFFICIAL API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MainKronos/AnimeWorld-API",
     packages=setuptools.find_packages(),
-    install_requires=['requests', 'youtube_dl', 'beautifulsoup4', 'alive_progress'],
+    install_requires=['requests', 'youtube_dl', 'beautifulsoup4'],
 	license='MIT',
     classifiers=[
         "Programming Language :: Python :: 3",

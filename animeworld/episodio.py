@@ -66,20 +66,28 @@ class Episodio:
 
 		return self.__setServer(tmp, self.number)
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
 		Scarica l'episodio dal primo server della lista links.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return str # File scaricato
 		```
 		"""
 		
-		return self.links[0].download(title,folder)
+		return self.links[0].download(title,folder,hook)
 
 	# Private
 	def __setServer(self, links: List[Dict], numero: str) -> List[Server]: # Per ogni link li posizioni nelle rispettive classi

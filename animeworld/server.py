@@ -7,7 +7,7 @@ import youtube_dl
 import re
 import os
 from typing import *
-from alive_progress import alive_bar
+import time
 
 from .globals import HDR, cookies
 from .utility import HealthCheck
@@ -63,13 +63,21 @@ class Server:
 			title = title.replace(x, '')
 		return title
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> Optional[str]:
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return str # File scaricato
@@ -78,13 +86,21 @@ class Server:
 		raise ServerNotSupported(self.name)
 
 	# Protected
-	def _downloadIn(self, title: str, folder: str, show_progress: bool) -> bool: # Scarica l'episodio
+	def _downloadIn(self, title: str, folder: str, hook: Callable[[Dict], None]) -> bool: # Scarica l'episodio
 		"""
 		Scarica il file utilizzando requests.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 
 		```
 		return bool # File scaricato
@@ -97,57 +113,101 @@ class Server:
 			file = f"{title}.{ext}"
 
 			total_length = int(r.headers.get('content-length'))
-			with open(f"{os.path.join(folder,file)}", 'wb') as f, alive_bar(total_length//65536+1, disable = not show_progress, length = 80, monitor = "[{percent:.0%}]", stats ="(ETA: {eta})", stats_end=False) as bar:
-				for chunk in r.iter_content(chunk_size = 65536):
+			current_lenght = 0
+			start = time.time()
+			step = time.time()
+
+			with open(f"{os.path.join(folder,file)}", 'wb') as f:
+				for chunk in r.iter_content(chunk_size = 524288):
 					if chunk: 
 						f.write(chunk)
 						f.flush()
-					bar()
+						
+						current_lenght += len(chunk)
+
+						hook({
+							'total_bytes': total_length,
+							'downloaded_bytes': current_lenght,
+							'percentage': current_lenght/total_length,
+							'speed': len(chunk) / (time.time() - step) if (time.time() - step) != 0 else 0,
+							'elapsed': time.time() - start,
+							'filename': file,
+							'eta': ((total_length - current_lenght) / len(chunk)) * (time.time() - step),
+							'status': 'downloading'
+						})
+
+						step = time.time()
+						
 				else:
+					hook({
+						'total_bytes': total_length,
+						'downloaded_bytes': total_length,
+						'percentage': 1,
+						'speed': 0,
+						'elapsed': time.time() - start,
+						'eta': 0,
+						'status': 'finished'
+					})
+
 					return file # Se il file è stato scaricato correttamente
 		return None # Se è accaduto qualche imprevisto
 
 	# Protected
-	def _dowloadEx(self, title: str, folder: str, show_progress: bool) -> Optional[str]:
+	def _dowloadEx(self, title: str, folder: str, hook: Callable[[Dict], None]) -> Optional[str]:
 		"""
 		Scarica il file utilizzando yutube_dl.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 
 		```
 		return str # File scaricato
 		```
 		"""
 
-		with alive_bar(disable = not show_progress, length = 80, monitor = "[{percent:.0%}]", stats ="(ETA: {eta})", stats_end=False, manual=True) as bar:
-			class MyLogger(object):
-				def debug(self, msg):
-					pass
-				def warning(self, msg):
-					pass
-				def error(self, msg):
-					print(msg)
-					return False
-					
-			def my_hook(d):
-				if d['status'] == 'downloading':
-					bar(float(d['downloaded_bytes'])/float(d['total_bytes_estimate']))
-				if d['status'] == 'finished':
-					return True
+		class MyLogger(object):
+			def debug(self, msg):
+				pass
+			def warning(self, msg):
+				pass
+			def error(self, msg):
+				print(msg)
+				return False
 
-			ydl_opts = {
-				'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
-				'logger': MyLogger(),
-				'progress_hooks': [my_hook],
-			}
-			with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-				url = self._getFileLink()
-				info = ydl.extract_info(url, download=False)
-				filename = ydl.prepare_filename(info)
-				ydl.download([url])
-				return filename
+		def my_hook(d):
+			hook({
+				'total_bytes': int(d['total_bytes_estimate']),
+				'downloaded_bytes': int(d['downloaded_bytes']),
+				'percentage': int(d['downloaded_bytes'])/int(d['total_bytes_estimate']),
+				'speed': float(d['speed']) if d['speed'] is not None else 0,
+				'elapsed': float(d['elapsed']),
+				'filename': d['filename'],
+				'eta': int(d['eta']),
+				'status': d['status']
+			})
+			if d['status'] == 'finished':
+				return True
+
+		ydl_opts = {
+			'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
+			'logger': MyLogger(),
+			'progress_hooks': [my_hook],
+		}
+		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+			url = self._getFileLink()
+			info = ydl.extract_info(url, download=False)
+			filename = ydl.prepare_filename(info)
+			ydl.download([url])
+			return filename
 
 
 class AnimeWorld_Server(Server):
@@ -157,13 +217,21 @@ class AnimeWorld_Server(Server):
 
 		return self.link.replace('download-file.php?id=', '')
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return bool # File scaricato
@@ -171,7 +239,7 @@ class AnimeWorld_Server(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder,show_progress)
+		return self._downloadIn(title,folder,hook)
 
 class VVVVID(Server):
 	# Protected
@@ -191,13 +259,21 @@ class VVVVID(Server):
 		raw = soupeddata.find("a", { "class" : "VVVVID-link" })
 		return raw.get("href")
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return bool # File scaricato
@@ -205,7 +281,7 @@ class VVVVID(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder,show_progress)
+		return self._dowloadEx(title,folder,hook)
 		
 
 class YouTube(Server):
@@ -228,13 +304,21 @@ class YouTube(Server):
 
 		return yutubelink_raw.replace('embed/', 'watch?v=')
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return bool # File scaricato
@@ -242,7 +326,7 @@ class YouTube(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder,show_progress)
+		return self._dowloadEx(title,folder,hook)
 
 class Streamtape(Server):
 	# Protected
@@ -268,13 +352,21 @@ class Streamtape(Server):
 
 			return mp4_link
 
-	def download(self, title: Optional[str]=None, folder: str='', show_progress: bool=True) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
 		Scarica l'episodio.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
-		- `show_progress`: Mostra la barra di avanzamento.
+		- `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
+		  - `total_bytes`: Byte totali da scaricare.
+		  - `downloaded_bytes`: Byte attualmente scaricati.
+		  - `percentage`: Percentuale del progresso di download.
+		  - `speed`: Velocità di download (byte/s)
+		  - `elapsed`: Tempo trascorso dall'inizio del download.
+		  - `eta`: Tempo stimato rimanente per fine del download.
+		  - `status`: 'downloading' | 'finished'
+		  - `filename`: Nome del file in download.
 		
 		```
 		return bool # File scaricato
@@ -282,4 +374,4 @@ class Streamtape(Server):
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder,show_progress)
+		return self._downloadIn(title,folder,hook)
