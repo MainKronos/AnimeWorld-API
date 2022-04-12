@@ -188,7 +188,10 @@ class Anime:
 		"""
 		soupeddata = BeautifulSoup(self.html, "html.parser")
 
-		self.link = "https://www.animeworld.tv" + soupeddata.select_one('li.episode > a').get('href')
+		a_link = soupeddata.select_one('li.episode > a')
+		if a_link is None: raise AnimeNotAvailable(self.getName())
+
+		self.link = "https://www.animeworld.tv" + a_link.get('href')
 
 		soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
 

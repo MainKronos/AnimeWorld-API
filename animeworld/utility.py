@@ -79,7 +79,9 @@ def find(keyword: str) -> List[Dict]:
 
 	res = requests.post("https://www.animeworld.tv/api/search/v2?", params = {"keyword": keyword} ,headers=myHDR, cookies=cookies)
 
-	data = res.json()["animes"]
+	data = res.json()
+	if "error" in data: return []
+	data = data["animes"]
 	data.sort(key=lambda a: a["dub"])
 
 	return [
