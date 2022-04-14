@@ -26,8 +26,8 @@ class Error404(Exception):
 
 class DeprecatedLibrary(Exception):
 	"""Libreria deprecata a causa di un cambiamento della struttura del sito."""
-	def __init__(self, funName, line):
+	def __init__(self, file, funName, line):
 		self.funName = funName
 		self.line = line
-		self.message = f"Il sito è cambiato, di conseguenza la libreria è DEPRECATA. -> [{funName} - {line}]"
+		self.message = f"Il sito è cambiato, di conseguenza la libreria è DEPRECATA. -> [File {file} in {funName} - {line}]"
 		super().__init__(self.message)

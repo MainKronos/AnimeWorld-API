@@ -7,8 +7,7 @@ import re
 import time
 from typing import *
 
-from .globals import HDR, cookies
-from .utility import HealthCheck
+from .utility import HealthCheck, SES
 from .exceptions import Error404, AnimeNotAvailable
 from .episodio import Episodio
 
@@ -34,22 +33,8 @@ class Anime:
 		- `link`: Link dell'anime.
 		"""
 		self.link = link
-		self.__fixCookie()
 		self.html = self.__getHTML().content
 		self.__check404()
-
-	# Private
-	def __fixCookie(self):
-		"""
-		Aggiorna il cookie `AWCookieVerify`.
-		"""
-		try:
-			soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
-
-			cookies['AWCookieVerify'] = re.search(r'document\.cookie="AWCookieVerify=(.+) ;', soupeddata.prettify()).group(1)
-			
-		except AttributeError:
-			pass
 
 	# Private
 	def __getHTML(self) -> requests.Response:
@@ -63,9 +48,7 @@ class Anime:
 		r = None
 		while True:
 			try:
-				r = requests.get(self.link, headers = HDR, cookies=cookies, timeout=(3, 27), allow_redirects=True)
-
-				cookies.update(r.cookies.get_dict())
+				r = SES.get(self.link, timeout=(3, 27), allow_redirects=True)
 
 				if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
 					continue
@@ -194,8 +177,6 @@ class Anime:
 		self.link = "https://www.animeworld.tv" + a_link.get('href')
 
 		soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
-
-		HDR.update({"csrf-token": soupeddata.find('meta', {'id': 'csrf-token'}).get('content')})
 
 		raw = {} # dati in formato semi-grezzo
 		eps = [] # Lista di Episodio()

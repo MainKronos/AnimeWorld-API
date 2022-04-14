@@ -1,11 +1,11 @@
 """
 Modulo contenente la struttura a classe degli episodi.
 """
-import requests
+# import requests
 from bs4 import BeautifulSoup
 from typing import *
 
-from .globals import HDR, cookies
+from .utility import SES
 from .server import Server, AnimeWorld_Server, VVVVID, YouTube, Streamtape
 
 
@@ -48,7 +48,7 @@ class Episodio:
 		"""
 		tmp = [] # tutti i links
 
-		res = requests.post(self.__link, headers = HDR, cookies=cookies, timeout=(3, 27))
+		res = SES.post(self.__link, timeout=(3, 27))
 		data = res.json()
 
 		for provID in data["links"]:

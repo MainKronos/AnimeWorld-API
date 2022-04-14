@@ -1,7 +1,6 @@
 """
 Modulo contenente le strutture a classi di tutti i server che hostano gli episodi di animewolrd.
 """
-import requests
 from bs4 import BeautifulSoup
 import youtube_dl
 import re
@@ -9,8 +8,7 @@ import os
 from typing import *
 import time
 
-from .globals import HDR, cookies
-from .utility import HealthCheck
+from .utility import HealthCheck, SES
 from .exceptions import ServerNotSupported
 
 
@@ -45,7 +43,7 @@ class Server:
 		self.number = number
 		"""Numero dell'episodio."""
 
-		self._HDR = HDR # Protected 
+		# self._HDR = HDR # Protected 
 		self._defTitle = f"{self.number} - {self.name}" # nome del file provvisorio
 
 	def _sanitize(self, title: str) -> str: # Toglie i caratteri illegali per i file
@@ -106,7 +104,7 @@ class Server:
 		return bool # File scaricato
 		```
 		"""
-		with requests.get(self._getFileLink(), headers = self._HDR, stream = True) as r:
+		with SES.get(self._getFileLink(), stream = True) as r:
 			r.raise_for_status()
 			ext = r.headers['content-type'].split('/')[-1]
 			if ext == 'octet-stream': ext = 'mp4'
@@ -249,10 +247,10 @@ class VVVVID(Server):
 		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 		"https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id=vKmnNB"
 
-		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
+		sb_get = SES.get(self.link)
 		sb_get.raise_for_status()
 
-		sb_get = requests.get(external_link, headers = self._HDR, cookies=cookies)
+		sb_get = SES.get(external_link)
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 		sb_get.raise_for_status()
 					
@@ -291,10 +289,10 @@ class YouTube(Server):
 		anime_id = self.link.split("/")[-1]
 		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
-		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies)
+		sb_get = SES.get(self.link)
 		sb_get.raise_for_status()
 
-		sb_get = requests.get(external_link, headers = self._HDR, cookies=cookies)
+		sb_get = SES.get(external_link)
 		soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 		sb_get.raise_for_status()
 
@@ -333,7 +331,7 @@ class Streamtape(Server):
 	@HealthCheck
 	def _getFileLink(self):
 
-		sb_get = requests.get(self.link, headers = self._HDR, cookies=cookies, allow_redirects=False)
+		sb_get = SES.get(self.link, allow_redirects=False)
 
 		with open('inde.html', 'wb') as f:
 			f.write(sb_get.content)
