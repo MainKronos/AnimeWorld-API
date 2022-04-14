@@ -26,7 +26,7 @@ class MySession(requests.Session):
 		AWCookieVerify = re.compile(br'document\.cookie="AWCookieVerify=(.+) ;')
 		csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
 
-		for _ in range(1): # numero di tentativi
+		for _ in range(2): # numero di tentativi
 			res = self.get("https://www.animeworld.tv")
 
 			m = AWCookieVerify.search(res.content)
