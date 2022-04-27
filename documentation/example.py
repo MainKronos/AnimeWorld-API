@@ -7,7 +7,7 @@ def my_hook(d):
 	Stampa una ProgressBar con tutte le informazioni di download.
 	"""
 	if d['status'] == 'downloading':
-		out = "{filename}:\n[{bar}][{percentage:^6.1%}]\n{total_bytes}/{downloaded_bytes} in {elapsed:%H:%M:%S} (ETA: {eta:%H:%M:%S})\x1B[3A"
+		out = "{filename}:\n[{bar}][{percentage:^6.1%}]\n{downloaded_bytes}/{total_bytes} in {elapsed:%H:%M:%S} (ETA: {eta:%H:%M:%S})\x1B[3A"
 
 		width = 70 # grandezza progressbar
 
@@ -22,7 +22,7 @@ def my_hook(d):
 
 
 try:
-	anime = aw.Anime(link="https://www.animeworld.tv/play/jaku-chara-tomozaki-kun.RDPHq")
+	anime = aw.Anime(link="https://www.animeworld.tv/play/one-piece-subita.sORn4")
 	
 	print("Titolo:", anime.getName()) # Titolo dell'anime
 
@@ -49,7 +49,7 @@ try:
 			for k in x.links:
 				print(f"\t{k.name} - {k.link}")
 
-			if x.number == '1':
+			if x.number == '1005':
 				x.download(hook=my_hook)
 				break
 except (aw.DeprecatedLibrary, aw.Error404) as error:

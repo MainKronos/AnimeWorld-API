@@ -169,46 +169,39 @@ class Anime:
 		]
 		```
 		"""
-		soupeddata = BeautifulSoup(self.html, "html.parser")
+		soupeddata = BeautifulSoup(self.html.decode('utf-8', 'ignore'), "html.parser")
 
 		a_link = soupeddata.select_one('li.episode > a')
 		if a_link is None: raise AnimeNotAvailable(self.getName())
 
 		self.link = "https://www.animeworld.tv" + a_link.get('href')
 
-		soupeddata = BeautifulSoup(self.__getHTML().content, "html.parser")
-
-		raw = {} # dati in formato semi-grezzo
-		eps = [] # Lista di Episodio()
-
-
 		provLegacy = self.__getServer() # vecchio sistema di cattura server
 
-		raw = {}
-		for liElem in soupeddata.find_all("li", {"class": "episode"}):
-			aElem = liElem.find('a')
-			raw[aElem.get('data-episode-num')] = {
-				"episodeId": aElem.get('data-episode-id')
-			}
 
+		raw_eps = {}
 		for provID in provLegacy:
-			provLegacy[provID]["soup"] = soupeddata.find("div", {"class": "server", "data-name": str(provID)})
+			prov_soup = soupeddata.select_one(f"div[class*='server'][data-name='{provID}']")
 
-		for epNum in raw:
-			epID = raw[epNum]["episodeId"]
-			legacy_links = []
+			for data in prov_soup.select('li.episode > a'):
+				epNum = data.get('data-episode-num')
+				epID = data.get('data-episode-id')
 
-			for provID in provLegacy:
-				soup_link = provLegacy[provID]["soup"].find('a', {'data-episode-num': epNum})
+				if epID not in raw_eps:
+					raw_eps[epID] = {
+						'number': epNum,
+						'link': f"https://www.animeworld.tv/api/download/{epID}",
+						'legacy': [{
+							"id": int(provID),
+							"name": provLegacy[provID]["name"],
+							"link": "https://www.animeworld.tv" + data.get("href")
+						}]
+					}
+				else:
+					raw_eps[epID]['legacy'].append({
+					"id": int(provID),
+					"name": provLegacy[provID]["name"],
+					"link": "https://www.animeworld.tv" + data.get("href")
+				})
 
-				if soup_link:
-					legacy_links.append({
-						"id": int(provID),
-						"name": provLegacy[provID]["name"],
-						"link": "https://www.animeworld.tv" + soup_link.get("href")
-					})
-
-
-			eps.append(Episodio(epNum, f"https://www.animeworld.tv/api/download/{epID}", legacy_links))
-
-		return eps
+		return [Episodio(x['number'], x['link'], x['legacy']) for x in list(raw_eps.values())]
