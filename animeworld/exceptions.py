@@ -14,7 +14,7 @@ class AnimeNotAvailable(Exception):
 	"""L'anime non è ancora disponibile."""
 	def __init__(self, animeName=''):
 		self.anime = animeName
-		self.message = f"L'anime '{animeName}' non è acora disponibile."
+		self.message = f"L'anime '{animeName}' non è ancora disponibile."
 		super().__init__(self.message)
 
 class Error404(Exception):
