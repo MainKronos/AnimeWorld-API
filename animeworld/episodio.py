@@ -1,11 +1,12 @@
 """
 Modulo contenente la struttura a classe degli episodi.
 """
-# import requests
+import requests
 from bs4 import BeautifulSoup
 from typing import *
 
 from .utility import SES
+from .exceptions import ServerNotSupported
 from .server import Server, AnimeWorld_Server, VVVVID, YouTube, Streamtape
 
 
@@ -68,7 +69,7 @@ class Episodio:
 
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
-		Scarica l'episodio dal primo server della lista links.
+		Scarica l'episodio dal primo server funzionante della lista links.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
@@ -86,8 +87,20 @@ class Episodio:
 		return str # File scaricato
 		```
 		"""
-		
-		return self.links[0].download(title,folder,hook)
+
+		file = ""
+		err = None
+		for server in self.links:
+			try:
+				file = server.download(title,folder,hook)
+			except ServerNotSupported:
+				pass
+			except requests.exceptions.RequestException as exc:
+				err = exc
+			else:
+				return file
+
+		raise err
 
 	# Private
 	def __setServer(self, links: List[Dict], numero: str) -> List[Server]: # Per ogni link li posizioni nelle rispettive classi
