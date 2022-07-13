@@ -69,7 +69,7 @@ class Episodio:
 
 	def fileInfo(self) -> Dict[str,str]:
 		"""
-		Recupera le informazione del file dell'episodio.
+		Recupera le informazioni del file dell'episodio.
 
 		```
 		return {
