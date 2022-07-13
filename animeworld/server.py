@@ -61,7 +61,7 @@ class Server:
 		for x in illegal:
 			title = title.replace(x, '')
 		return title
-	
+
 	def fileInfo(self) -> Dict[str,str]:
 		"""
 		Recupera le informazioni del file dell'episodio.
@@ -78,6 +78,12 @@ class Server:
 		```
 		"""
 
+		raise ServerNotSupported(self.name)
+	
+	def _fileInfoIn(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio usando requests.
+		"""
 		url = self._getFileLink()
 
 		with SES.head(url) as r:
@@ -87,6 +93,35 @@ class Server:
 				"content_type": r.headers['content-type'],
 				"total_bytes": int(r.headers['Content-Length']),
 				"last_modified": datetime.strptime(r.headers['Last-Modified'], "%a, %d %b %Y %H:%M:%S %Z"),
+				"server_name": self.name,
+				"server_id": self.Nid,
+				"url": url
+			}
+	
+	def _fileInfoEx(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio usando yutube_dl.
+		"""
+
+		class MyLogger(object):
+			def debug(self, msg):
+				pass
+			def warning(self, msg):
+				pass
+			def error(self, msg):
+				print(msg)
+				return False
+		
+		ydl_opts = {
+			'logger': MyLogger()
+		}
+		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+			url = self._getFileLink()
+			info = ydl.extract_info(url, download=False)
+			return {
+				"content_type": "unknown",
+				"total_bytes": -1,
+				"last_modified": datetime.fromtimestamp(0),
 				"server_name": self.name,
 				"server_id": self.Nid,
 				"url": url
@@ -113,11 +148,6 @@ class Server:
 		return str # File scaricato
 		```
 		"""
-		raise ServerNotSupported(self.name)
-
-	# Protected
-	def _getFileLink(self) -> str:
-
 		raise ServerNotSupported(self.name)
 
 	# Protected
@@ -252,6 +282,24 @@ class AnimeWorld_Server(Server):
 
 		return self.link.replace('download-file.php?id=', '')
 
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		return self._fileInfoIn()
+
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
 		Scarica l'episodio.
@@ -293,6 +341,24 @@ class VVVVID(Server):
 					
 		raw = soupeddata.find("a", { "class" : "VVVVID-link" })
 		return raw.get("href")
+	
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		return self._fileInfoEx()
 
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
@@ -338,6 +404,24 @@ class YouTube(Server):
 		print( yutubelink_raw.replace('embed/', 'watch?v='))
 
 		return yutubelink_raw.replace('embed/', 'watch?v=')
+
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		return self._fileInfoEx()
 
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
@@ -386,6 +470,24 @@ class Streamtape(Server):
 			mp4_link = 'http:/' + (raw_link_part1 + raw_link_part2).replace(' ', '')
 
 			return mp4_link
+	
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazioni del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		return self._fileInfoIn()
 
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
 		"""
