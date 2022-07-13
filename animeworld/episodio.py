@@ -67,6 +67,36 @@ class Episodio:
 
 		return self.__setServer(tmp, self.number)
 
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazione del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		info = ""
+		err = None
+		for server in self.links:
+			try:
+				info = server.fileInfo()
+			except ServerNotSupported:
+				pass
+			except requests.exceptions.RequestException as exc:
+				err = exc
+			else:
+				return info
+
+		raise err
+
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
 		Scarica l'episodio dal primo server funzionante della lista links.

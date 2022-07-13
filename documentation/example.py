@@ -22,7 +22,7 @@ def my_hook(d):
 
 
 try:
-	anime = aw.Anime(link="https://www.animeworld.tv/play/one-piece-subita.sORn4")
+	anime = aw.Anime(link="https://www.animeworld.tv/play/summertime-render.GDU38")
 	
 	print("Titolo:", anime.getName()) # Titolo dell'anime
 
@@ -49,7 +49,8 @@ try:
 			for k in x.links:
 				print(f"\t{k.name} - {k.link}")
 
-			if x.number == '1005':
+			if x.number == '1':
+				print("\n\tFile info: {\n\t\t" + "\n\t\t".join("{}: {}".format(k, v) for k, v in x.fileInfo().items()) + "\n\t}")
 				x.download(hook=my_hook)
 				break
 except (aw.DeprecatedLibrary, aw.Error404) as error:

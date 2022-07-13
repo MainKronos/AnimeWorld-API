@@ -7,6 +7,7 @@ import re
 import os
 from typing import *
 import time
+from datetime import datetime
 
 from .utility import HealthCheck, SES
 from .exceptions import ServerNotSupported
@@ -60,6 +61,37 @@ class Server:
 		for x in illegal:
 			title = title.replace(x, '')
 		return title
+	
+	def fileInfo(self) -> Dict[str,str]:
+		"""
+		Recupera le informazione del file dell'episodio.
+
+		```
+		return {
+		  "content_type": str, # Tipo del file, es. video/mp4
+		  "total_bytes": int, # Byte totali del file
+		  "last_modified": datetime, # Data e ora dell'ultimo aggiornamento effettuato all'episodio sul server
+		  "server_name": str, # Nome del server
+		  "server_id": int, # ID del server
+		  "url": str # url dell'episodio
+		} 
+		```
+		"""
+
+		url = self._getFileLink()
+
+		with SES.head(url) as r:
+			r.raise_for_status()
+
+			return {
+				"content_type": r.headers['content-type'],
+				"total_bytes": int(r.headers['Content-Length']),
+				"last_modified": datetime.strptime(r.headers['Last-Modified'], "%a, %d %b %Y %H:%M:%S %Z"),
+				"server_name": self.name,
+				"server_id": self.Nid,
+				"url": url
+			}
+
 
 	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]:
 		"""
@@ -81,6 +113,11 @@ class Server:
 		return str # File scaricato
 		```
 		"""
+		raise ServerNotSupported(self.name)
+
+	# Protected
+	def _getFileLink(self) -> str:
+
 		raise ServerNotSupported(self.name)
 
 	# Protected
