@@ -2,13 +2,11 @@
 Modulo per delle funzioni di utilità.
 """
 import requests
-from bs4 import BeautifulSoup
 import inspect
 from typing import *
-import re
+from requests_html import HTMLSession
 
 from datetime import datetime
-import time
 import locale
 
 from .exceptions import DeprecatedLibrary
@@ -23,20 +21,35 @@ class MySession(requests.Session):
 		self.fixCookie()
 	
 	def fixCookie(self):
-		AWCookieVerify = re.compile(br'document\.cookie="AWCookieVerify=(.+) ;')
-		csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
-
 		for _ in range(2): # numero di tentativi
-			res = self.get("https://www.animeworld.tv")
 
-			m = AWCookieVerify.search(res.content)
-			if m:
-				self.cookies.update({'AWCookieVerify': m.group(1).decode('utf-8')})
-				continue
-			
-			m = csrf_token.search(res.content)
-			if m:
-				self.headers.update({'csrf-token': m.group(1).decode('utf-8')})
+			session = HTMLSession()
+			r = session.get('https://www.animeworld.tv')
+
+			script = """
+			       () => {
+			           function getCookie(name) {
+			             const value = `; ${document.cookie}`;
+			             const parts = value.split(`; ${name}=`);
+			             if (parts.length === 2) return parts.pop().split(';').shift();
+			           }
+
+			           return {
+			               SecurityAW: getCookie('SecurityAW'),
+			               csfrToken: window.csrfToken
+			           }
+			       }
+			       """
+
+			result = r.html.render(script=script)
+
+			if 'SecurityAW' in result.keys():
+				print(result['SecurityAW'])
+				self.cookies.update({'SecurityAW': result['SecurityAW']})
+
+			if 'csfrToken' in result.keys():
+				print(result['csfrToken'])
+				self.headers.update({'csrf-token': result['csfrToken']})
 				break
 		else:
 			frame = inspect.getframeinfo(inspect.currentframe())
