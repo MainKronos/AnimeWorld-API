@@ -4,3 +4,4 @@ build/
 tests/
 *.pyc
 .idea
+.vscode

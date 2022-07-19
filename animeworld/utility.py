@@ -39,8 +39,8 @@ class MySession(requests_html.HTMLSession):
 			           }
 			       }
 			       """
-
-			result = r.html.render(script=script)
+			# TODO: controllare il timeout
+			result = r.html.render(script=script, timeout=100)
 
 			if 'SecurityAW' in result.keys():
 				self.cookies.update({'SecurityAW': result['SecurityAW']})
