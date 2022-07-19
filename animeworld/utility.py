@@ -4,14 +4,14 @@ Modulo per delle funzioni di utilità.
 import requests
 import inspect
 from typing import *
-from requests_html import HTMLSession
+import requests_html
 
 from datetime import datetime
 import locale
 
 from .exceptions import DeprecatedLibrary
 
-class MySession(requests.Session):
+class MySession(requests_html.HTMLSession):
 	"""
 	Sessione requests.
 	"""
@@ -23,8 +23,7 @@ class MySession(requests.Session):
 	def fixCookie(self):
 		for _ in range(2): # numero di tentativi
 
-			session = HTMLSession()
-			r = session.get('https://www.animeworld.tv')
+			r = self.get('https://www.animeworld.tv')
 
 			script = """
 			       () => {
@@ -44,11 +43,9 @@ class MySession(requests.Session):
 			result = r.html.render(script=script)
 
 			if 'SecurityAW' in result.keys():
-				print(result['SecurityAW'])
 				self.cookies.update({'SecurityAW': result['SecurityAW']})
 
 			if 'csfrToken' in result.keys():
-				print(result['csfrToken'])
 				self.headers.update({'csrf-token': result['csfrToken']})
 				break
 		else:
