@@ -97,7 +97,7 @@ class Episodio:
 
 		raise err
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
 		"""
 		Scarica l'episodio dal primo server funzionante della lista links.
 
@@ -110,8 +110,10 @@ class Episodio:
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
 		return str # File scaricato
@@ -122,11 +124,9 @@ class Episodio:
 		err = None
 		for server in self.links:
 			try:
-				file = server.download(title,folder,hook)
-			except ServerNotSupported:
-				pass
-			except requests.exceptions.RequestException as exc:
-				err = exc
+				file = server.download(title,folder,hook=hook,opt=opt)
+			except (ServerNotSupported, requests.exceptions.RequestException) as e:
+				err = e
 			else:
 				return file
 

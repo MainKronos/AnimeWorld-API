@@ -31,3 +31,9 @@ class DeprecatedLibrary(Exception):
 		self.line = line
 		self.message = f"Il sito è cambiato, di conseguenza la libreria è DEPRECATA. -> [File {file} in {funName} - {line}]"
 		super().__init__(self.message)
+
+class HardStoppedDownload(Exception):
+	"""Il file in download è stato forsatamente interrotto."""
+	def __init__(self):
+		self.message = "Il file in download è stato forsatamente interrotto."
+		super().__init__(self.message)

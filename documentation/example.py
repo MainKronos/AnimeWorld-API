@@ -22,7 +22,7 @@ def my_hook(d):
 
 
 try:
-	anime = aw.Anime(link="https://www.animeworld.tv/play/summertime-render.GDU38")
+	anime = aw.Anime(link="https://www.animeworld.tv/play/summertime-render.GDU38/")
 	
 	print("Titolo:", anime.getName()) # Titolo dell'anime
 
@@ -41,7 +41,7 @@ try:
 	print("Episodi:")
 	try:
 		episodi = anime.getEpisodes()
-	except (aw.ServerNotSupported, aw.AnimeNotAvailable) as error:
+	except aw.AnimeNotAvailable as error:
 		print("Errore:", error)
 	else:
 		for x in episodi:
@@ -53,5 +53,5 @@ try:
 				print("\n\tFile info: {\n\t\t" + "\n\t\t".join("{}: {}".format(k, v) for k, v in x.fileInfo().items()) + "\n\t}")
 				x.download(hook=my_hook)
 				break
-except (aw.DeprecatedLibrary, aw.Error404) as error:
+except (aw.DeprecatedLibrary, aw.Error404, aw.ServerNotSupported) as error:
 	print(error)
