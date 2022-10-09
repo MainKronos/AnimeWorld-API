@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 from .utility import HealthCheck, SES
-from .exceptions import ServerNotSupported
+from .exceptions import ServerNotSupported, HardStoppedDownload
 
 
 class Server:
@@ -128,7 +128,7 @@ class Server:
 			}
 
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> Optional[str]:
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
@@ -141,8 +141,10 @@ class Server:
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
 		return str # File scaricato
@@ -151,7 +153,8 @@ class Server:
 		raise ServerNotSupported(self.name)
 
 	# Protected
-	def _downloadIn(self, title: str, folder: str, hook: Callable[[Dict], None]) -> bool: # Scarica l'episodio
+	def _downloadIn(self, title: str, folder: str, *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]: # Scarica l'episodio
+
 		"""
 		Scarica il file utilizzando requests.
 
@@ -164,11 +167,13 @@ class Server:
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		with SES.get(self._getFileLink(), stream = True) as r:
@@ -182,43 +187,48 @@ class Server:
 			start = time.time()
 			step = time.time()
 
-			with open(f"{os.path.join(folder,file)}", 'wb') as f:
-				for chunk in r.iter_content(chunk_size = 524288):
-					if chunk: 
-						f.write(chunk)
-						f.flush()
-						
-						current_lenght += len(chunk)
+			try:
+				with open(f"{os.path.join(folder,file)}", 'wb') as f:
+					for chunk in r.iter_content(chunk_size = 524288):
+						if chunk: 
+							f.write(chunk)
+							f.flush()
+							
+							current_lenght += len(chunk)
 
+							hook({
+								'total_bytes': total_length,
+								'downloaded_bytes': current_lenght,
+								'percentage': current_lenght/total_length,
+								'speed': len(chunk) / (time.time() - step) if (time.time() - step) != 0 else 0,
+								'elapsed': time.time() - start,
+								'filename': file,
+								'eta': ((total_length - current_lenght) / len(chunk)) * (time.time() - step),
+								'status': 'downloading' if "abort" not in opt else "aborted"
+							})
+
+							if "abort" in opt: raise HardStoppedDownload()
+
+							step = time.time()
+							
+					else:
 						hook({
 							'total_bytes': total_length,
-							'downloaded_bytes': current_lenght,
-							'percentage': current_lenght/total_length,
-							'speed': len(chunk) / (time.time() - step) if (time.time() - step) != 0 else 0,
+							'downloaded_bytes': total_length,
+							'percentage': 1,
+							'speed': 0,
 							'elapsed': time.time() - start,
-							'filename': file,
-							'eta': ((total_length - current_lenght) / len(chunk)) * (time.time() - step),
-							'status': 'downloading'
+							'eta': 0,
+							'status': 'finished'
 						})
 
-						step = time.time()
-						
-				else:
-					hook({
-						'total_bytes': total_length,
-						'downloaded_bytes': total_length,
-						'percentage': 1,
-						'speed': 0,
-						'elapsed': time.time() - start,
-						'eta': 0,
-						'status': 'finished'
-					})
-
-					return file # Se il file è stato scaricato correttamente
-		return None # Se è accaduto qualche imprevisto
+						return file # Se il file è stato scaricato correttamente
+			except HardStoppedDownload:
+				os.remove(f"{os.path.join(folder,file)}")
+				return None
 
 	# Protected
-	def _dowloadEx(self, title: str, folder: str, hook: Callable[[Dict], None]) -> Optional[str]:
+	def _dowloadEx(self, title: str, folder: str, *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]:
 		"""
 		Scarica il file utilizzando yutube_dl.
 
@@ -231,9 +241,11 @@ class Server:
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
-
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
+		
 		```
 		return str # File scaricato
 		```
@@ -249,6 +261,7 @@ class Server:
 				return False
 
 		def my_hook(d):
+
 			hook({
 				'total_bytes': int(d['total_bytes_estimate']),
 				'downloaded_bytes': int(d['downloaded_bytes']),
@@ -257,10 +270,10 @@ class Server:
 				'elapsed': float(d['elapsed']),
 				'filename': d['filename'],
 				'eta': int(d['eta']),
-				'status': d['status']
+				'status': d['status'] if "abort" not in opt else "aborted"
 			})
-			if d['status'] == 'finished':
-				return True
+
+			if "abort" in opt: raise HardStoppedDownload()
 
 		ydl_opts = {
 			'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
@@ -271,7 +284,11 @@ class Server:
 			url = self._getFileLink()
 			info = ydl.extract_info(url, download=False)
 			filename = ydl.prepare_filename(info)
-			ydl.download([url])
+			try:
+				ydl.download([url])
+			except HardStoppedDownload:
+				os.remove(f"{os.path.join(folder,filename)}")
+				return None
 			return filename
 
 
@@ -300,7 +317,7 @@ class AnimeWorld_Server(Server):
 
 		return self._fileInfoIn()
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
@@ -313,16 +330,18 @@ class AnimeWorld_Server(Server):
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder,hook)
+		return self._downloadIn(title,folder,hook=hook,opt=opt)
 
 class VVVVID(Server):
 	# Protected
@@ -360,7 +379,7 @@ class VVVVID(Server):
 
 		return self._fileInfoEx()
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
@@ -373,16 +392,22 @@ class VVVVID(Server):
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
+
+		# TODO: Il download usando VVVVID non funziona don youtube-dl
+		raise ServerNotSupported(self.name)
+
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder,hook)
+		return self._dowloadEx(title,folder,hook=hook,opt=opt)
 		
 
 class YouTube(Server):
@@ -423,7 +448,7 @@ class YouTube(Server):
 
 		return self._fileInfoEx()
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
@@ -436,16 +461,18 @@ class YouTube(Server):
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._dowloadEx(title,folder,hook)
+		return self._dowloadEx(title,folder,hook=hook,opt=opt)
 
 class Streamtape(Server):
 	# Protected
@@ -489,7 +516,7 @@ class Streamtape(Server):
 
 		return self._fileInfoIn()
 
-	def download(self, title: Optional[str]=None, folder: str='', hook: Callable[[Dict], None] = lambda *args:None) -> bool:
+	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
 		Scarica l'episodio.
 
@@ -502,13 +529,15 @@ class Streamtape(Server):
 		  - `speed`: Velocità di download (byte/s)
 		  - `elapsed`: Tempo trascorso dall'inizio del download.
 		  - `eta`: Tempo stimato rimanente per fine del download.
-		  - `status`: 'downloading' | 'finished'
+		  - `status`: 'downloading' | 'finished' | 'aborted'
 		  - `filename`: Nome del file in download.
+		- `opt`: Lista per delle opzioni aggiuntive.
+		  - `'abort'`: Ferma forzatamente il download.
 		
 		```
-		return bool # File scaricato
+		return str # File scaricato
 		```
 		"""
 		if title is None: title = self._defTitle
 		else: title = self._sanitize(title)
-		return self._downloadIn(title,folder,hook)
+		return self._downloadIn(title,folder,hook=hook,opt=opt)
