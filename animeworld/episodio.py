@@ -7,7 +7,7 @@ from typing import *
 
 from .utility import SES
 from .exceptions import ServerNotSupported
-from .server import Server, AnimeWorld_Server, VVVVID, YouTube, Streamtape
+from .server import Server, AnimeWorld_Server, YouTube, Streamtape
 
 
 class Episodio:
@@ -149,9 +149,7 @@ class Episodio:
 		"""
 		ret = [] # lista dei server
 		for prov in links:
-			if prov["id"] == 3: 
-				ret.append(VVVVID(prov["link"], prov["id"], prov["name"], numero))
-			elif prov["id"] == 4:
+			if prov["id"] == 4:
 				ret.append(YouTube(prov["link"], prov["id"], prov["name"], numero))
 			elif prov["id"] == 9:
 				ret.append(AnimeWorld_Server(prov["link"], prov["id"], prov["name"], numero))
@@ -167,8 +165,7 @@ class Episodio:
 		"""
 		Ordina i server per importanza.
 		"""
-		if isinstance(elem, VVVVID): return 0
-		elif isinstance(elem, YouTube): return 1
-		elif isinstance(elem, AnimeWorld_Server): return 2
-		elif isinstance(elem, Streamtape): return 3
+		if isinstance(elem, YouTube): return 0
+		elif isinstance(elem, AnimeWorld_Server): return 1
+		elif isinstance(elem, Streamtape): return 2
 		else: return 4
