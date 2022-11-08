@@ -124,7 +124,7 @@ def find(keyword: str) -> List[Dict]:
 		"jtitle": elem["jtitle"],
 		"studio": elem["studio"],
 		"release": datetime.strptime(elem["release"], "%d %B %Y"),
-		"episodes": int(elem["state"]),
+		"episodes": int(elem["episodes"]),
 		"state": elem["state"],
 		"story": elem["story"],
 		"categories": elem["categories"],
