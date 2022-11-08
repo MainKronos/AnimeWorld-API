@@ -115,7 +115,14 @@ def find(keyword: str) -> List[Dict]:
 	data = res.json()
 	if "error" in data: return []
 	data = data["animes"]
+
+	for elem in data:
+		for k in elem:
+			if elem[k] == "??":
+				elem[k] = None
+
 	data.sort(key=lambda a: a["dub"])
+
 
 	return [
 		{
@@ -123,18 +130,18 @@ def find(keyword: str) -> List[Dict]:
 		"name": elem["name"],
 		"jtitle": elem["jtitle"],
 		"studio": elem["studio"],
-		"release": datetime.strptime(elem["release"], "%d %B %Y"),
-		"episodes": int(elem["episodes"]),
+		"release": datetime.strptime(elem["release"], "%d %B %Y") if elem["release"] is not None else None,
+		"episodes": int(elem["episodes"]) if elem["episodes"] is not None else None,
 		"state": elem["state"],
 		"story": elem["story"],
 		"categories": elem["categories"],
 		"image": elem["image"],
 		"durationEpisodes": elem["durationEpisodes"],
-		"link": f"https://www.animeworld.tv/play/{elem['link']}.{elem['identifier']}",
+		"link": f"https://www.animeworld.tv/play/{elem['link']}.{elem['identifier']}" if elem['link'] is not None or elem['identifier'] is not None else None,
 		"createdAt": elem["createdAt"],
 		"language": elem["language"],
 		"year": elem["year"],
-		"dub": elem["dub"] != "0",
+		"dub": elem["dub"] != "0" if elem["dub"] is not None else None,
 		"season": elem["season"],
 		"totViews": elem["totViews"],
 		"dayViews": elem["dayViews"],
