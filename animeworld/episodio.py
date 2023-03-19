@@ -147,7 +147,7 @@ class Episodio:
 		]
 		```
 		"""
-		ret = [] # lista dei server
+		ret: List[Server] = [] # lista dei server
 		for prov in links:
 			if prov["id"] == 4:
 				ret.append(YouTube(prov["link"], prov["id"], prov["name"], numero))

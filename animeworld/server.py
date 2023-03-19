@@ -414,9 +414,6 @@ class Streamtape(Server):
 
 		sb_get = SES.get(self.link, allow_redirects=False)
 
-		with open('inde.html', 'wb') as f:
-			f.write(sb_get.content)
-
 		if sb_get.status_code == 200:
 			soupeddata = BeautifulSoup(sb_get.content, "html.parser")
 
