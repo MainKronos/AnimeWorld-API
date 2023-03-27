@@ -4,11 +4,11 @@ Modulo contenente la struttura a classe degli episodi.
 import requests
 from bs4 import BeautifulSoup
 from typing import *
+import time
 
 from .utility import SES
 from .exceptions import ServerNotSupported
-from .server import Server, AnimeWorld_Server, YouTube, Streamtape
-
+from .servers import Server, AnimeWorld_Server, YouTube, Streamtape
 
 class Episodio:
 	"""
@@ -120,17 +120,7 @@ class Episodio:
 		```
 		"""
 
-		file = ""
-		err = None
-		for server in self.links:
-			try:
-				file = server.download(title,folder,hook=hook,opt=opt)
-			except (ServerNotSupported, requests.exceptions.RequestException) as e:
-				err = e
-			else:
-				return file
-
-		raise err
+		return self.__choiceBestServer().download(title,folder,hook=hook,opt=opt)
 
 	# Private
 	def __setServer(self, links: List[Dict], numero: str) -> List[Server]: # Per ogni link li posizioni nelle rispettive classi
@@ -147,7 +137,7 @@ class Episodio:
 		]
 		```
 		"""
-		ret = [] # lista dei server
+		ret: List[Server] = [] # lista dei server
 		for prov in links:
 			if prov["id"] == 4:
 				ret.append(YouTube(prov["link"], prov["id"], prov["name"], numero))
@@ -169,3 +159,31 @@ class Episodio:
 		elif isinstance(elem, AnimeWorld_Server): return 1
 		elif isinstance(elem, Streamtape): return 2
 		else: return 4
+	
+	def __choiceBestServer(self) -> Server:
+		"""
+		Sceglie il server più veloce per il download dell'episodio.
+		"""
+		servers = self.links
+
+		speed_test = [{
+			"server": x,
+			"bytes": -1
+		} for x in servers]
+
+		max_time = 0.5 # numero di secondi massimo
+
+		for test in speed_test:
+			try:
+				start = time.perf_counter()
+				with SES.get(test["server"].fileLink(), stream = True, timeout=0.9) as r:
+					for chunk in r.iter_content(chunk_size = 2048):
+						if time.perf_counter() - start > max_time: break
+						test["bytes"] += len(chunk)
+			except (ServerNotSupported, requests.exceptions.RequestException):
+				continue
+		
+		speed_test = [x for x in speed_test if x["bytes"] != -1] # tolgo tutti i server che hanno generato un eccezione
+		if len(speed_test) == 0: return servers[0] # ritorno al caso standard
+
+		return max(speed_test, key=lambda x: x["bytes"])["server"] # restituisco il server che ha scaricato più byte in `max_time` secondi
