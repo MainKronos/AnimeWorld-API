@@ -18,6 +18,8 @@ class Server:
 	Methods:
 
 	- `download`: Scarica l'episodio.
+	- `fileInfo`: Recupera le informazioni del file dell'episodio.
+	- `fileLink`: Recupera il link diretto per il download del file dell'episodio.
 	"""
 
 	def __init__(self, link: str, Nid: int, name: str, number: str):
