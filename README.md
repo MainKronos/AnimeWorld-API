@@ -61,3 +61,5 @@ Per un utilizzo avanzato consultare la [documentazione](https://github.com/MainK
 
 ## Contributing
 Se volete contribuire aprendo Issue o Pull a questa libreria siete ben accetti, tutto il codice sorgente e la documentazione è reperible su [GitHub](https://github.com/MainKronos/AnimeWorld-API).
+
+Se volete aggiungere un nuovo server da cui scaricare gli episodio, allora leggere la sezione [contributing](https://github.com/MainKronos/AnimeWorld-API/blob/master/CONTRIBUTING.md).

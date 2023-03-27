@@ -34,6 +34,7 @@ class DeprecatedLibrary(Exception):
 
 class HardStoppedDownload(Exception):
 	"""Il file in download è stato forzatamente interrotto."""
-	def __init__(self):
-		self.message = "Il file in download è stato forzatamente interrotto."
+	def __init__(self, file:str):
+		self.file = file
+		self.message = f"Il file in download ({file}) è stato forzatamente interrotto."
 		super().__init__(self.message)
