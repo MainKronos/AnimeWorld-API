@@ -23,15 +23,15 @@ class MySession(requests.Session):
 		self.fixCookie()
 	
 	def fixCookie(self):
-		AWCookieVerify = re.compile(br'document\.cookie="AWCookieVerify=(.+) ;')
+		SecurityAW = re.compile(br'document\.cookie="SecurityAW=(.+) ;')
 		csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
 
 		for _ in range(2): # numero di tentativi
 			res = self.get("https://www.animeworld.tv")
 
-			m = AWCookieVerify.search(res.content)
+			m = SecurityAW.search(res.content)
 			if m:
-				self.cookies.update({'AWCookieVerify': m.group(1).decode('utf-8')})
+				self.cookies.update({'SecurityAW': m.group(1).decode('utf-8')})
 				continue
 			
 			m = csrf_token.search(res.content)
