@@ -3,3 +3,5 @@ animeworld.egg-info/
 build/
 tests/
 *.pyc
+.idea
+.vscode

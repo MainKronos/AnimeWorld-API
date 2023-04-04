@@ -2,18 +2,16 @@
 Modulo per delle funzioni di utilità.
 """
 import requests
-from bs4 import BeautifulSoup
 import inspect
 from typing import *
-import re
+import requests_html
 
 from datetime import datetime
-import time
 import locale
 
 from .exceptions import DeprecatedLibrary
 
-class MySession(requests.Session):
+class MySession(requests_html.HTMLSession):
 	"""
 	Sessione requests.
 	"""
@@ -23,20 +21,32 @@ class MySession(requests.Session):
 		self.fixCookie()
 	
 	def fixCookie(self):
-		AWCookieVerify = re.compile(br'document\.cookie="AWCookieVerify=(.+) ;')
-		csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
-
 		for _ in range(2): # numero di tentativi
-			res = self.get("https://www.animeworld.tv")
 
-			m = AWCookieVerify.search(res.content)
-			if m:
-				self.cookies.update({'AWCookieVerify': m.group(1).decode('utf-8')})
-				continue
-			
-			m = csrf_token.search(res.content)
-			if m:
-				self.headers.update({'csrf-token': m.group(1).decode('utf-8')})
+			r = self.get('https://www.animeworld.tv')
+
+			script = """
+			       () => {
+			           function getCookie(name) {
+			             const value = `; ${document.cookie}`;
+			             const parts = value.split(`; ${name}=`);
+			             if (parts.length === 2) return parts.pop().split(';').shift();
+			           }
+
+			           return {
+			               SecurityAW: getCookie('SecurityAW'),
+			               csfrToken: window.csrfToken
+			           }
+			       }
+			       """
+			# TODO: controllare il timeout
+			result = r.html.render(script=script, timeout=100)
+
+			if 'SecurityAW' in result.keys():
+				self.cookies.update({'SecurityAW': result['SecurityAW']})
+
+			if 'csfrToken' in result.keys():
+				self.headers.update({'csrf-token': result['csfrToken']})
 				break
 		else:
 			frame = inspect.getframeinfo(inspect.currentframe())
