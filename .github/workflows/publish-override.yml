@@ -34,11 +34,11 @@ jobs:
     - name: Override
       run: |
         for file in dist/*${{ github.event.inputs.version }}*; do
-          echo "$file - ${file%${{ github.event.inputs.version }}* }${{ github.event.inputs.version }}-${{ github.event.inputs.override }}${file#*${{ github.event.inputs.version }} }"
+          echo "$file - ${file%%${{github.event.inputs.version}}*}${{ github.event.inputs.version}}-${{github.event.inputs.override}}${file##*${{github.event.inputs.version}}}"
         done
-        
+
         for file in dist/*${{ github.event.inputs.version }}*; do
-          mv -- "$file" "${file%${{ github.event.inputs.version }}* }${{ github.event.inputs.version }}-${{ github.event.inputs.override }}${file#*${{ github.event.inputs.version }} }"
+          mv -- "$file" "${file%%${{github.event.inputs.version}}*}${{github.event.inputs.version}}-${{github.event.inputs.override}}${file##*${{github.event.inputs.version}}}"
         done
     - name: Publish
       env:
