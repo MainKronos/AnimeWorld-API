@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="animeworld",
-    version="1.5.1",
+    version="1.6.0",
     author="MainKronos",
     description="AnimeWorld UNOFFICIAL API",
     long_description=long_description,
