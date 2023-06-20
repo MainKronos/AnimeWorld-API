@@ -1,4 +1,4 @@
-![AnimeWorld](/documentation/img/AnimeWorld-API.png)
+[![AnimeWorld](/documentation/img/AnimeWorld-API.png)](https://github.com/MainKronos/AnimeWorld-API/blob/master/documentation/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
 ![Version](https://img.shields.io/pypi/v/animeworld)
@@ -12,7 +12,7 @@
 AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.so/) (Italian anime site).
 
 ## Installazione
-Questa libreria richiede [Python 3.6](https://www.python.org/) o superiore.
+Questa libreria richiede [Python 3.7](https://www.python.org/) o superiore.
 
 È Possibile installarare la libreria tramite pip:
 ```shell script
