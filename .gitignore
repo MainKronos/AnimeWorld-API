@@ -1,5 +1,6 @@
 *.bat
 animeworld.egg-info/
 build/
+dist/
 tests/
 *.pyc
