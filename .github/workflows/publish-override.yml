@@ -40,6 +40,8 @@ jobs:
         for file in dist/*${{ github.event.inputs.version }}*; do
           mv -- "$file" "${file%%${{github.event.inputs.version}}*}${{github.event.inputs.version}}-${{github.event.inputs.override}}${file##*${{github.event.inputs.version}}}"
         done
+
+        rm dist/*.tar.gz
     - name: Publish
       env:
         TWINE_USERNAME: '__token__'
