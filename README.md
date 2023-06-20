@@ -9,7 +9,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/animeworld)
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/animeworld)
 
-AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.tv/) (Italian anime site).
+AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.so/) (Italian anime site).
 
 ## Installazione
 Questa libreria richiede [Python 3.6](https://www.python.org/) o superiore.
@@ -31,14 +31,14 @@ La funzione estituirà un dizionario contentente per chiave il nome dell'anime e
 ```python
 {
 	'name': 'No Game no Life',
-	'link': 'https://www.animeworld.tv/play/no-game-no-life.IJUH1'
+	'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1'
 }
 ```
 È Possibile anche scaricare gli episodi di un anime.
 ```python
 import animeworld as aw
 
-anime = aw.Anime(link="https://www.animeworld.tv/play/danmachi-3.Ydt8-")
+anime = aw.Anime(link="https://www.animeworld.so/play/danmachi-3.Ydt8-")
 for episodio in anime.getEpisodes():
     print("Episodio Numero: ", episodio.number)
         

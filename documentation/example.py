@@ -22,7 +22,7 @@ def my_hook(d):
 
 
 try:
-	anime = aw.Anime(link="https://www.animeworld.tv/play/tokyo-revengers-seiya-kessen-hen.tzgly")
+	anime = aw.Anime(link="https://www.animeworld.so/play/tokyo-revengers-seiya-kessen-hen.tzgly")
 	
 	print("Titolo:", anime.getName()) # Titolo dell'anime
 

@@ -1,7 +1,7 @@
 """
 Modulo contenente la struttura a classe degli episodi.
 """
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from typing import *
 import time
@@ -27,6 +27,7 @@ class Episodio:
 		- `number`: Numero dell'episodio.
 		- `link`: Link dell'endpoint dell'episodio.
 		- `legacy`: Lista di tutti i link dei server in cui sono hostati gli episodi.
+		- `csrf_token`: Token per le chiamate api.
 		"""
 		self.number = number 
 		"""Numero dell'episodio."""
@@ -48,8 +49,7 @@ class Episodio:
 		```
 		"""
 		tmp = [] # tutti i links
-
-		res = SES.post(self.__link, timeout=(3, 27))
+		res = SES.post(self.__link, timeout=(3, 27), follow_redirects=True)
 		data = res.json()
 
 		for provID in data["links"]:
@@ -90,7 +90,7 @@ class Episodio:
 				info = server.fileInfo()
 			except ServerNotSupported:
 				pass
-			except requests.exceptions.RequestException as exc:
+			except httpx.HTTPError as exc:
 				err = exc
 			else:
 				return info
@@ -176,11 +176,11 @@ class Episodio:
 		for test in speed_test:
 			try:
 				start = time.perf_counter()
-				with SES.get(test["server"].fileLink(), stream = True, timeout=0.9) as r:
-					for chunk in r.iter_content(chunk_size = 2048):
+				with SES.stream("GET", test["server"].fileLink(), timeout=0.9, follow_redirects=True) as r:
+					for chunk in r.iter_bytes(chunk_size = 2048):
 						if time.perf_counter() - start > max_time: break
 						test["bytes"] += len(chunk)
-			except (ServerNotSupported, requests.exceptions.RequestException):
+			except (ServerNotSupported, httpx.HTTPError):
 				continue
 		
 		speed_test = [x for x in speed_test if x["bytes"] != -1] # tolgo tutti i server che hanno generato un eccezione

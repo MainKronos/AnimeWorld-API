@@ -12,7 +12,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/MainKronos/AnimeWorld-API",
     packages=setuptools.find_packages(),
-    install_requires=['requests', 'youtube_dl', 'beautifulsoup4'],
+    install_requires=['httpx', 'youtube_dl', 'beautifulsoup4'],
 	license='MIT',
     classifiers=[
         "Programming Language :: Python :: 3",

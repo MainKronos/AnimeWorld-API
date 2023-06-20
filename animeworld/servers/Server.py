@@ -88,21 +88,21 @@ class Server:
 	
 	def _fileInfoIn(self) -> Dict[str,str]:
 		"""
-		Recupera le informazioni del file dell'episodio usando requests.
+		Recupera le informazioni del file dell'episodio usando httpx.
 		"""
 		url = self.fileLink()
 
-		with SES.head(url) as r:
-			r.raise_for_status()
+		r = SES.head(url)
+		r.raise_for_status()
 
-			return {
-				"content_type": r.headers['content-type'],
-				"total_bytes": int(r.headers['Content-Length']),
-				"last_modified": datetime.strptime(r.headers['Last-Modified'], "%a, %d %b %Y %H:%M:%S %Z"),
-				"server_name": self.name,
-				"server_id": self.Nid,
-				"url": url
-			}
+		return {
+			"content_type": r.headers['content-type'],
+			"total_bytes": int(r.headers['Content-Length']),
+			"last_modified": datetime.strptime(r.headers['Last-Modified'], "%a, %d %b %Y %H:%M:%S %Z"),
+			"server_name": self.name,
+			"server_id": self.Nid,
+			"url": url
+		}
 	
 	def _fileInfoEx(self) -> Dict[str,str]:
 		"""
@@ -162,7 +162,7 @@ class Server:
 	def _downloadIn(self, title: str, folder: str, *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]: # Scarica l'episodio
 
 		"""
-		Scarica il file utilizzando requests.
+		Scarica il file utilizzando httpx.
 
 		- `title`: Nome con cui verrà nominato il file scaricato.
 		- `folder`: Posizione in cui verrà spostato il file scaricato.
@@ -182,7 +182,7 @@ class Server:
 		return str # File scaricato
 		```
 		"""
-		with SES.get(self.fileLink(), stream = True) as r:
+		with SES.stream("GET", self.fileLink(), follow_redirects=True) as r:
 			r.raise_for_status()
 			ext = r.headers['content-type'].split('/')[-1]
 			if ext == 'octet-stream': ext = 'mp4'
@@ -195,7 +195,7 @@ class Server:
 
 			try:
 				with open(f"{os.path.join(folder,file)}", 'wb') as f:
-					for chunk in r.iter_content(chunk_size = 524288):
+					for chunk in r.iter_bytes(chunk_size = 524288):
 						if chunk: 
 							f.write(chunk)
 							f.flush()

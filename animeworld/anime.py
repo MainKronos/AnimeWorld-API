@@ -1,7 +1,7 @@
 """
 Modulo contenente la struttura a classe dell'anime.
 """
-import requests
+import httpx
 from bs4 import BeautifulSoup
 import re
 import time
@@ -37,7 +37,7 @@ class Anime:
 		self.__check404()
 
 	# Private
-	def __getHTML(self) -> requests.Response:
+	def __getHTML(self) -> httpx.Response:
 		"""
 		Ottiene la pagina web di Animeworld dell'anime e aggiorna i cookies.
 		
@@ -48,12 +48,12 @@ class Anime:
 		r = None
 		while True:
 			try:
-				r = SES.get(self.link, timeout=(3, 27), allow_redirects=True)
+				r = SES.get(self.link, timeout=(3, 27), follow_redirects=True)
 
-				if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
-					continue
+				# if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
+				# 	continue
 
-			except requests.exceptions.ReadTimeout:
+			except httpx.ReadTimeout:
 				time.sleep(1) # errore
 				
 			else:
@@ -77,7 +77,7 @@ class Anime:
 		```
 		return {
 		  int: { # ID del server
-		    name: str # Nome del server
+			name: str # Nome del server
 		  },
 		  ...
 		}
@@ -174,10 +174,9 @@ class Anime:
 		a_link = soupeddata.select_one('li.episode > a')
 		if a_link is None: raise AnimeNotAvailable(self.getName())
 
-		self.link = "https://www.animeworld.tv" + a_link.get('href')
+		self.link = "https://www.animeworld.so" + a_link.get('href')
 
 		provLegacy = self.__getServer() # vecchio sistema di cattura server
-
 
 		raw_eps = {}
 		for provID in provLegacy:
@@ -190,18 +189,18 @@ class Anime:
 				if epID not in raw_eps:
 					raw_eps[epID] = {
 						'number': epNum,
-						'link': f"https://www.animeworld.tv/api/download/{epID}",
+						'link': f"https://www.animeworld.so/api/download/{epID}",
 						'legacy': [{
 							"id": int(provID),
 							"name": provLegacy[provID]["name"],
-							"link": "https://www.animeworld.tv" + data.get("href")
+							"link": "https://www.animeworld.so" + data.get("href")
 						}]
 					}
 				else:
 					raw_eps[epID]['legacy'].append({
 					"id": int(provID),
 					"name": provLegacy[provID]["name"],
-					"link": "https://www.animeworld.tv" + data.get("href")
+					"link": "https://www.animeworld.so" + data.get("href")
 				})
 
 		return [Episodio(x['number'], x['link'], x['legacy']) for x in list(raw_eps.values())]

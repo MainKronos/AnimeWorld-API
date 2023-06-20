@@ -16,7 +16,7 @@ class YouTube(Server):
 		"""
 		
 		anime_id = self.link.split("/")[-1]
-		external_link = "https://www.animeworld.tv/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
+		external_link = "https://www.animeworld.so/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
 
 		sb_get = SES.get(self.link)
 		sb_get.raise_for_status()
