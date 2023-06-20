@@ -23,6 +23,7 @@ class MySession(httpx.Client):
 		self.fixCookie()
 	
 	def fixCookie(self):
+		"""Aggiunge il csrf_token all'headers."""
 
 		res = self.get("https://www.animeworld.so", follow_redirects=True)
 		csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
@@ -109,7 +110,6 @@ def find(keyword: str) -> List[Dict]:
 				elem[k] = None
 
 	data.sort(key=lambda a: a["dub"])
-
 
 	return [
 		{

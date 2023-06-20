@@ -46,15 +46,17 @@ class Anime:
 		```
 		"""
 		r = None
+		retry = 0
 		while True:
 			try:
 				r = SES.get(self.link, timeout=(3, 27), follow_redirects=True)
 
-				# if len(list(filter(re.compile(r'30[^2]').search, [str(x.status_code) for x in r.history]))): # se c'è un redirect strano
-				# 	continue
-
-			except httpx.ReadTimeout:
-				time.sleep(1) # errore
+			except httpx.ReadTimeout as e:
+				if retry <= 2:
+					retry +=1
+					time.sleep(1) # errore
+				else:
+					raise e
 				
 			else:
 				break
