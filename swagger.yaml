@@ -4,6 +4,8 @@ info:
   description: 'AnimeWorld Rest Api'
   version: 0.0.1
 servers:
+- url: http://localhost:8000
+  description: Test server
 - url: https://www.animeworld.so/api
   description: Production server
 tags:
@@ -29,6 +31,9 @@ paths:
         required: true
         schema:
           type: string
+      responses:
+        '200':
+          description: ""
   /download/{epID}:
     post:
       tags:
@@ -82,10 +87,7 @@ paths:
         schema:
           type: integer
           default: 1687471200000
-      - name: Sec-Fetch-Mode
-        in: header
-        schema:
-          type: string
-          enum: ["no-cors"]
-          default: "no-cors"
+      responses:
+        '200':
+          description: ""
 components: {}
