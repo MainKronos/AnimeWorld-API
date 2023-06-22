@@ -176,7 +176,9 @@ class Episodio:
 		for test in speed_test:
 			try:
 				start = time.perf_counter()
-				with SES.stream("GET", test["server"].fileLink(), timeout=0.9, follow_redirects=True) as r:
+				link = test["server"].fileLink()
+				if not link: continue
+				with SES.stream("GET", link, timeout=0.9, follow_redirects=True) as r:
 					for chunk in r.iter_bytes(chunk_size = 2048):
 						if time.perf_counter() - start > max_time: break
 						test["bytes"] += len(chunk)
