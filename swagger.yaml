@@ -1,78 +1,91 @@
----
-swagger: "2.0"
+openapi: 3.0.1
 info:
-  description: "This is a sample server Petstore server.  You can find out more about\
-    \ Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).\
-    \  For this sample, you can use the api key `special-key` to test the authorization\
-    \ filters."
-  version: "0.0.1"
-  title: "AnimeWorld Rest Api"
-host: "www.animeworld.so"
-basePath: "/api"
+  title: AnimeWorld Rest Api
+  description: 'AnimeWorld Rest Api'
+  version: 0.0.1
+servers:
+- url: https://www.animeworld.so/api
+  description: Production server
 tags:
-- name: "General"
-  description: "Endpoint genereci"
+- name: General
+  description: Endpoint genereci
 paths:
   /search/v2:
     post:
       tags:
-      - "General"
-      summary: "Ricerca anime"
-      description: "Ricerca anime nel sito in base ad una chiave di ricerca."
+      - General
+      summary: Ricerca anime
+      description: Ricerca anime nel sito in base ad una chiave di ricerca.
       parameters:
       - name: keyword
         in: query
+        description: chiave di ricerca
         required: true
-        type: string
-        description: "chiave di ricerca"
+        schema:
+          type: string
       - name: csrf-token
         in: header
+        description: cross-site request forgery token
         required: true
-        type: string
-        description: "cross-site request forgery token"
+        schema:
+          type: string
   /download/{epID}:
     post:
       tags:
-      - "General"
-      summary: "Informazioni di download"
-      description: "Restituisce informazioni per il download dell'episodio richiesto."
+      - General
+      summary: Informazioni di download
+      description: Restituisce informazioni per il download dell'episodio richiesto.
       parameters:
       - name: epID
         in: path
+        description: id episodio
         required: true
-        type: integer
-        description: "id episodio"
+        schema:
+          type: integer
       - name: csrf-token
         in: header
+        description: cross-site request forgery token
         required: true
-        type: string
-        description: "cross-site request forgery token"
+        schema:
+          type: string
   /tooltip/{animeID}:
     get:
       tags:
-      - "General"
-      summary: "Informazioni generali anime"
-      description: "Restituisce informazioni generali e sintetiche sull'anime."
+      - General
+      summary: Informazioni generali anime
+      description: Restituisce informazioni generali e sintetiche sull'anime.
       parameters:
       - name: animeID
         in: path
+        description: id anime
         required: true
-        type: integer
-        description: "id anime"
+        schema:
+          type: integer
       - name: csrf-token
         in: header
+        description: cross-site request forgery token
         required: true
-        type: string
-        description: "cross-site request forgery token"
+        schema:
+          type: string
   /schedule:
     get:
       tags:
-      - "General"
-      summary: "Calendario uscite"
-      description: "Restituisce il calendario delle uscite degli episodi per il giorno indicato."
+      - General
+      summary: Calendario uscite
+      description: Restituisce il calendario delle uscite degli episodi per il giorno
+        indicato.
       parameters:
       - name: time
         in: query
+        description: timestamp in millisecondi con timezone GMT+2
         required: true
-        type: integer
-        description: "timestamp in millisecondi con timezone GMT+2"
+        schema:
+          type: integer
+          default: 1687471200000
+      - name: Sec-Fetch-Mode
+        in: header
+        schema:
+          type: string
+          enum: ["no-cors"]
+          default: "no-cors"
+components: {}
