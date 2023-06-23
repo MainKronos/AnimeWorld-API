@@ -4,6 +4,9 @@ window.onload = function() {
   // the following lines will be replaced by docker/configurator, when it runs in a docker-container
   window.ui = SwaggerUIBundle({
     url: "swagger.yaml",
+    tryItOutEnabled: true,
+    // withCredentials: true,
+    persistAuthorization: true,
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [
@@ -13,7 +16,12 @@ window.onload = function() {
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout"
+    layout: "StandaloneLayout",
+    requestInterceptor: (req) => {
+        console.log(req);
+
+        return req;
+    }
   });
 
   //</editor-fold>

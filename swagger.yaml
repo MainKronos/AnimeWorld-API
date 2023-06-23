@@ -31,15 +31,17 @@ paths:
         required: true
         schema:
           type: string
-      - name: sessionId
-        in: cookie
-        description: ID di sessione
-        required: true
-        schema:
-          type: string
+      # - name: sessionId
+      #   in: cookie
+      #   description: ID di sessione
+      #   required: true
+      #   schema:
+      #     type: string
       responses:
         '200':
           description: ""
+      security:
+      - sessionId: []
   /download/{epID}:
     post:
       tags:
@@ -96,4 +98,9 @@ paths:
       responses:
         '200':
           description: ""
-components: {}
+components: 
+  securitySchemes:
+    sessionId:
+      name: sessionId
+      type: apiKey
+      in: cookie
