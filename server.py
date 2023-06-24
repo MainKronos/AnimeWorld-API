@@ -14,11 +14,11 @@ class Redirect(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT, PATCH, OPTIONS')
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.send_header("Access-Control-Allow-Headers", "csrf-token")
-        self.send_header("Access-Control-Request-Method", "*")
+        self.send_header('Access-Control-Allow-Credentials','true')
+        self.send_header('Access-Control-Allow-Origin', self.headers.get('Origin'))
+        # self.send_header('Access-Control-Allow-Methods', '*')
+        self.send_header('Access-Control-Allow-Headers','X-Cookie, csrf-token, Origin, Content-Type, Accept, Authorization, X-Request-With, Set-Cookie, Cookie, Bearer');
+        # self.send_header("Access-Control-Request-Method", "*")
 
         self.end_headers()
 
@@ -33,7 +33,7 @@ class Redirect(BaseHTTPRequestHandler):
 
         content_len = self.headers.get('Content-Length')
 
-        req_cookies = dict(SimpleCookie(self.headers.get('Cookie')))
+        req_cookies = dict(SimpleCookie(self.headers.get('X-Cookie')))
         req_headers = dict()
         req_data = self.rfile.read(int(content_len)) if content_len else None
 
@@ -44,7 +44,7 @@ class Redirect(BaseHTTPRequestHandler):
         #     headers['csrf-token'] = self.headers.get('csrf-token')
         
         res_data = None
-        res_headers = {'Access-Control-Allow-Origin': '*'}
+        res_headers = {'Access-Control-Allow-Origin': self.headers.get('Origin')}
         res_code = 200
 
         try:
