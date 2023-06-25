@@ -21,14 +21,9 @@ window.onload = function() {
     persistAuthorization: true,
     requestInterceptor: (req) => {
         if(!('loadSpec' in req)){
-            const servers_list = document.querySelector('.servers select');
-            const selected_server = servers_list.options[servers_list.selectedIndex];
-            const api_root = selected_server.value;
-
-            if(api_root == 'http://localhost:8000'){
-                req.headers['X-Cookie'] = document.cookie;
-            }
             console.log(req);
+            document.cookie = req.headers['Cookie'];
+
         }
         return req;
     }

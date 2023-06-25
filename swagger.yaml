@@ -4,13 +4,15 @@ info:
   description: 'AnimeWorld Rest Api'
   version: 0.0.1
 servers:
-- url: http://localhost:8000
+- url: http://127.0.0.1:8000/api
   description: Test server
 - url: https://www.animeworld.so/api
   description: Production server
 tags:
 - name: General
   description: Endpoint genereci
+- name: Anime
+  description: Endpoint riguardanti gli anime
 paths:
   /search/v2:
     post:
@@ -25,18 +27,12 @@ paths:
         required: true
         schema:
           type: string
-      - name: csrf-token
+      - name: Csrf-Token
         in: header
         description: cross-site request forgery token
         required: true
         schema:
           type: string
-      # - name: sessionId
-      #   in: cookie
-      #   description: ID di sessione
-      #   required: true
-      #   schema:
-      #     type: string
       responses:
         '200':
           description: ""
@@ -45,7 +41,7 @@ paths:
   /download/{epID}:
     post:
       tags:
-      - General
+      - Anime
       summary: Informazioni di download
       description: Restituisce informazioni per il download dell'episodio richiesto.
       parameters:
@@ -55,16 +51,21 @@ paths:
         required: true
         schema:
           type: integer
-      - name: csrf-token
+      - name: Csrf-Token
         in: header
         description: cross-site request forgery token
         required: true
         schema:
           type: string
+      responses:
+        '200':
+          description: ""
+      security:
+      - sessionId: []
   /tooltip/{animeID}:
     get:
       tags:
-      - General
+      - Anime
       summary: Informazioni generali anime
       description: Restituisce informazioni generali e sintetiche sull'anime.
       parameters:
@@ -74,12 +75,69 @@ paths:
         required: true
         schema:
           type: integer
-      - name: csrf-token
+      - name: Csrf-Token
         in: header
         description: cross-site request forgery token
         required: true
         schema:
           type: string
+      responses:
+        '200':
+          description: ""
+  /comments/anime/get/{animeID}:
+    post:
+      tags:
+      - Anime
+      summary: Commenti utenti anime
+      description: Restituisce i commenti degli utenti dell'anime selezionato.
+      parameters:
+      - name: animeID
+        in: path
+        description: id anime
+        required: true
+        schema:
+          type: integer
+      - name: Csrf-Token
+        in: header
+        description: cross-site request forgery token
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ""
+      security:
+      - sessionId: []
+  /comments/anime/get/{animeID}{epID}:
+    post:
+      tags:
+      - Anime
+      summary: Commenti utenti episodio
+      description: Restituisce i commenti degli utenti di un episodio dell'anime selezionato.
+      parameters:
+      - name: animeID
+        in: path
+        description: id anime
+        required: true
+        schema:
+          type: integer
+      - name: epID
+        in: path
+        description: id episodio
+        required: true
+        schema:
+          type: integer
+      - name: Csrf-Token
+        in: header
+        description: cross-site request forgery token
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ""
+      security:
+      - sessionId: []
   /schedule:
     get:
       tags:
