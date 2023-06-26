@@ -1,4 +1,3 @@
-from urllib.parse import unquote
 import httpx
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from http.cookies import SimpleCookie
@@ -31,7 +30,7 @@ class Redirect(BaseHTTPRequestHandler):
 
         content_len = self.headers.get('Content-Length')
 
-        req_cookies = {k: unquote(v.value) for k, v in SimpleCookie(self.headers.get('Cookie')).items()}
+        req_cookies = {k: v.value for k, v in SimpleCookie(self.headers.get('Cookie')).items()}
         req_headers = dict()
         req_data = self.rfile.read(int(content_len)) if content_len is not None else None
 
@@ -48,7 +47,7 @@ class Redirect(BaseHTTPRequestHandler):
         res = None
         try:
             with httpx.Client(http2=True) as client:
-                res = client.request(method=self.command, url="https://www.animeworld.so" + self.path, headers=req_headers, cookies=req_cookies)
+                res = client.request(method=self.command, url="https://www.animeworld.so" + self.path, headers=req_headers, cookies=req_cookies, content=req_data)
                 res_data = res.content
                 
                 self.send_response(res.status_code)

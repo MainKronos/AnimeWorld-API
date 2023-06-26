@@ -22,6 +22,7 @@ window.onload = function() {
     requestInterceptor: (req) => {
         if(!('loadSpec' in req)){
             console.log(req);
+            req.headers['Cookie'] = decodeURI(req.headers['Cookie']);
             document.cookie = req.headers['Cookie'];
 
         }

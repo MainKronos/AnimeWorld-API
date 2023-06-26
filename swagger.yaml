@@ -13,6 +13,8 @@ tags:
   description: Endpoint genereci
 - name: Anime
   description: Endpoint riguardanti gli anime
+- name: User
+  description: Endpoint riguardanti la gestione dell'account utente
 paths:
   /search/v2:
     post:
@@ -152,7 +154,49 @@ paths:
         required: true
         schema:
           type: integer
-          default: 1687471200000
+        example: 1687471200000
+      responses:
+        '200':
+          description: ""
+  /user/register:
+    post:
+      tags:
+      - User
+      summary: Registra un account
+      description: Registra un nuovo account sul sito.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                _csrf:
+                  description: token cross-site request forgery
+                  type: string
+                username:
+                  description: nome utente
+                  type: string
+                email:
+                  description: email
+                  type: string
+                password:
+                  description: password
+                  type: password
+                confirmPassword:
+                  description: password di conferma
+                  type: password
+                g-recaptcha-response:
+                  description: token captcha
+                  type: string
+              required:
+              - _csrf
+              - username
+              - email
+              - password
+              - confirmPassword
+              - g-recaptcha-response
+      security:
+      - sessionId: []
       responses:
         '200':
           description: ""
