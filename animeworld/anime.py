@@ -12,197 +12,210 @@ from .exceptions import Error404, AnimeNotAvailable
 from .episodio import Episodio
 
 class Anime:
-	"""
-	Attributes:
+    """
+    Attributes:
+      link: Link dell'anime.
+      html: Pagina web di Animeworld dell'anime.
+    """
 
-	- `link`: Link dell'anime.
-	- `html`: Pagina web di Animeworld dell'anime.
+    def __init__(self, link: str):
+        """		
+        Args:
+          link: Link dell'anime.
+        """
+        
+        self.link:str = link
+        self.html:bytes = self.__getHTML().content
+        self.__check404()
 
-	Methods:
+    # Private
+    def __getHTML(self) -> httpx.Response:
+        """
+        Ottiene la pagina web di Animeworld dell'anime e aggiorna i cookies.
+        
+        Example:
+          ```py
+          return Response # Risposta GET
+          ```
+        """
+        r = None
+        retry = 0
+        while True:
+            try:
+                r = SES.get(self.link, timeout=(3, 27), follow_redirects=True)
 
-	- `getName`: Ottiene il nome dell'anime.
-	- `getTrama`: Ottiene la trama dell'anime.
-	- `getInfo`: Ottiene le informazioni dell'anime.
-	- `getEpisodes`: Ottiene tutti gli episodi dell'anime.
-	"""
+            except httpx.ReadTimeout as e:
+                if retry <= 2:
+                    retry +=1
+                    time.sleep(1) # errore
+                else:
+                    raise e
+                
+            else:
+                break
+        r.raise_for_status()
+        return r
+    
+    # Private
+    def __check404(self):
+        """
+        Controlla se la pagina è una pagina 404.
+        """
+        if self.html.decode("utf-8").find('Errore 404') != -1: raise Error404(self.link)
 
+    # Private
+    @HealthCheck
+    def __getServer(self) -> Dict[int, Dict[str, str]]:
+        """
+        Ottiene tutti i server in cui sono hostati gli episodi.
 
+        Example:
+          ```
+          return {
+            int: { # ID del server
+                name: str # Nome del server
+            },
+            ...
+          }
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html, "html.parser")
+        block = soupeddata.find("span", { "class" : "servers-tabs" })
 
-	def __init__(self, link: str):
-		"""
-		- `link`: Link dell'anime.
-		"""
-		self.link = link
-		self.html = self.__getHTML().content
-		self.__check404()
+        if block == None: raise AnimeNotAvailable(self.getName())
 
-	# Private
-	def __getHTML(self) -> httpx.Response:
-		"""
-		Ottiene la pagina web di Animeworld dell'anime e aggiorna i cookies.
-		
-		```
-		return Response # Risposta GET
-		```
-		"""
-		r = None
-		retry = 0
-		while True:
-			try:
-				r = SES.get(self.link, timeout=(3, 27), follow_redirects=True)
+        providers = block.find_all("span", { "class" : "server-tab" })
+        return {
+            int(x["data-name"]): {
+                "name": x.get_text()
+            } 
+            for x in providers
+        }
 
-			except httpx.ReadTimeout as e:
-				if retry <= 2:
-					retry +=1
-					time.sleep(1) # errore
-				else:
-					raise e
-				
-			else:
-				break
-		r.raise_for_status()
-		return r
-	
-	# Private
-	def __check404(self):
-		"""
-		Controlla se la pagina è una pagina 404.
-		"""
-		if self.html.decode("utf-8").find('Errore 404') != -1: raise Error404(self.link)
+    @HealthCheck
+    def getTrama(self) -> str:
+        """
+        Ottiene la trama dell'anime.
 
-	# Private
-	@HealthCheck
-	def __getServer(self) -> Dict[int, Dict[str, str]]:
-		"""
-		Ottiene tutti i server in cui sono hostati gli episodi.
+        Returns:
+          La trama dell'anime.
+        
+        Example:
+          ```py
+          return str # Trama anime.
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html, "html.parser")
+        return soupeddata.find("div", { "class" : "desc" }).get_text()
 
-		```
-		return {
-		  int: { # ID del server
-			name: str # Nome del server
-		  },
-		  ...
-		}
-		```
-		"""
-		soupeddata = BeautifulSoup(self.html, "html.parser")
-		block = soupeddata.find("span", { "class" : "servers-tabs" })
+    @HealthCheck
+    def getInfo(self) -> Dict[str, str]:
+        """
+        Ottiene le informazioni dell'anime.
 
-		if block == None: raise AnimeNotAvailable(self.getName())
+        Returns:
+          Informazioni anime.
+        
+        Example:
+          ```py
+          return {
+            'Categoria': str,
+            'Audio': str,
+            'Data di Uscita': str,
+            'Stagione': str,
+            'Studio': str,
+            'Genere': List[str],
+            'Voto': str,
+            'Durata': str,
+            'Episodi': str,
+            'Stato': str,
+            'Visualizzazioni': str
+          }
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html, "html.parser")
+        block = soupeddata.find("div", { "class" : "info" }).find("div", { "class" : "row" })
 
-		providers = block.find_all("span", { "class" : "server-tab" })
-		return {
-			int(x["data-name"]): {
-				"name": x.get_text()
-			} 
-			for x in providers
-		}
+        tName = [x.get_text().replace(':', '') for x in block.find_all("dt")]
+        tInfo = []
+        for x in block.find_all("dd"):
+            txt = x.get_text()
+            if len(txt.split(',')) > 1:
+                tInfo.append([x.strip() for x in txt.split(',')])
+            else:	
+                tInfo.append(txt.strip())
 
-	@HealthCheck
-	def getTrama(self) -> str:
-		"""
-		Ottiene la trama dell'anime.
+        return dict(zip(tName, tInfo))
 
-		```
-		return str # Trama dell'anime
-		```
-		"""
-		soupeddata = BeautifulSoup(self.html, "html.parser")
-		return soupeddata.find("div", { "class" : "desc" }).get_text()
+    @HealthCheck
+    def getName(self) -> str: # Nome dell'anime
+        """
+        Ottiene il nome dell'anime.
 
-	@HealthCheck
-	def getInfo(self) -> Dict[str, str]:
-		"""
-		Ottiene le informazioni dell'anime.
+        Returns:
+          Nome anime.
 
-		```
-		return {
-		  'Categoria': str,
-		  'Audio': str,
-		  'Data di Uscita': str,
-		  'Stagione': str,
-		  'Studio': str,
-		  'Genere': List[str],
-		  'Voto': str,
-		  'Durata': str,
-		  'Episodi': str,
-		  'Stato': str,
-		  'Visualizzazioni': str
-		}
-		```
-		"""
-		soupeddata = BeautifulSoup(self.html, "html.parser")
-		block = soupeddata.find("div", { "class" : "info" }).find("div", { "class" : "row" })
+        Example:
+          ```py
+          return str # Nome dell'anime
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html, "html.parser")
+        return soupeddata.find("h1", { "id" : "anime-title" }).get_text()
 
-		tName = [x.get_text().replace(':', '') for x in block.find_all("dt")]
-		tInfo = []
-		for x in block.find_all("dd"):
-			txt = x.get_text()
-			if len(txt.split(',')) > 1:
-				tInfo.append([x.strip() for x in txt.split(',')])
-			else:	
-				tInfo.append(txt.strip())
+    #############
 
-		return dict(zip(tName, tInfo))
+    @HealthCheck
+    def getEpisodes(self) -> List[Episodio]: # Ritorna una lista di Episodi
+        """
+        Ottiene tutti gli episodi dell'anime.
 
-	@HealthCheck
-	def getName(self) -> str: # Nome dell'anime
-		"""
-		Ottiene il nome dell'anime.
+        Returns:
+          Lista di oggetti Episodio.
+        
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
+          
+        Example:
+          ```py
+          return [
+            Episodio, # Classe Episodio
+            ...
+          ]
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html.decode('utf-8', 'ignore'), "html.parser")
 
-		```
-		return str # Nome dell'anime
-		```
-		"""
-		soupeddata = BeautifulSoup(self.html, "html.parser")
-		return soupeddata.find("h1", { "id" : "anime-title" }).get_text()
+        a_link = soupeddata.select_one('li.episode > a')
+        if a_link is None: raise AnimeNotAvailable(self.getName())
 
-	#############
+        self.link = "https://www.animeworld.so" + a_link.get('href')
 
-	@HealthCheck
-	def getEpisodes(self) -> List[Episodio]: # Ritorna una lista di Episodi
-		"""
-		Ottiene tutti gli episodi dell'anime.
+        provLegacy = self.__getServer() # vecchio sistema di cattura server
 
-		```
-		return [
-		  Episodio, # Classe Episodio
-		  ...
-		]
-		```
-		"""
-		soupeddata = BeautifulSoup(self.html.decode('utf-8', 'ignore'), "html.parser")
+        raw_eps = {}
+        for provID in provLegacy:
+            prov_soup = soupeddata.select_one(f"div[class*='server'][data-name='{provID}']")
 
-		a_link = soupeddata.select_one('li.episode > a')
-		if a_link is None: raise AnimeNotAvailable(self.getName())
+            for data in prov_soup.select('li.episode > a'):
+                epNum = data.get('data-episode-num')
+                epID = data.get('data-episode-id')
 
-		self.link = "https://www.animeworld.so" + a_link.get('href')
+                if epID not in raw_eps:
+                    raw_eps[epID] = {
+                        'number': epNum,
+                        'link': f"https://www.animeworld.so/api/download/{epID}",
+                        'legacy': [{
+                            "id": int(provID),
+                            "name": provLegacy[provID]["name"],
+                            "link": "https://www.animeworld.so" + data.get("href")
+                        }]
+                    }
+                else:
+                    raw_eps[epID]['legacy'].append({
+                    "id": int(provID),
+                    "name": provLegacy[provID]["name"],
+                    "link": "https://www.animeworld.so" + data.get("href")
+                })
 
-		provLegacy = self.__getServer() # vecchio sistema di cattura server
-
-		raw_eps = {}
-		for provID in provLegacy:
-			prov_soup = soupeddata.select_one(f"div[class*='server'][data-name='{provID}']")
-
-			for data in prov_soup.select('li.episode > a'):
-				epNum = data.get('data-episode-num')
-				epID = data.get('data-episode-id')
-
-				if epID not in raw_eps:
-					raw_eps[epID] = {
-						'number': epNum,
-						'link': f"https://www.animeworld.so/api/download/{epID}",
-						'legacy': [{
-							"id": int(provID),
-							"name": provLegacy[provID]["name"],
-							"link": "https://www.animeworld.so" + data.get("href")
-						}]
-					}
-				else:
-					raw_eps[epID]['legacy'].append({
-					"id": int(provID),
-					"name": provLegacy[provID]["name"],
-					"link": "https://www.animeworld.so" + data.get("href")
-				})
-
-		return [Episodio(x['number'], x['link'], x['legacy']) for x in list(raw_eps.values())]
+        return [Episodio(x['number'], x['link'], x['legacy']) for x in list(raw_eps.values())]

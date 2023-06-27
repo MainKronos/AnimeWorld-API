@@ -4,6 +4,7 @@ site_url: https://github.com/MainKronos/AnimeWorld-API
 
 theme:
     name: 'material'
+    language: it
     palette:
       - scheme: 'default'
         media: '(prefers-color-scheme: light)'
@@ -17,7 +18,7 @@ theme:
           icon: 'material/lightbulb-outline'
           name: 'Switch to light mode'
     features:
-        - navigation.sections
+    - navigation.sections
 
 repo_name: MainKronos/AnimeWorld-API
 repo_url: https://github.com/MainKronos/AnimeWorld-API
@@ -32,7 +33,6 @@ nav:
       - Developer Interface: 'api-reference/developer-interface.md'
       - Exceptions: 'api-reference/exceptions.md'
   - Community:
-      - Third Party Packages: 'community/third-party-packages.md'
       - Contributing: 'community/contributing.md'
       - Code of Conduct: 'community/code-of-conduct.md'
 
@@ -43,4 +43,38 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences
+
+plugins:
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        paths: [.]
+        options:
+          docstring_style: google
+          show_source: false
+          show_root_heading: true
+          group_by_category: true
+
+          show_root_toc_entry: false
+          # signature_crossrefs: true ----
+          # show_symbol_type_toc: true ----
+          # docstring_section_style: list
+          line_length: 80
+          separate_signature: true
+
+          show_signature: true
+          # show_signature_annotations: true
+
+          show_submodules: false
+
+          show_root_full_path: false
+          merge_init_into_class: true
+          filters: ["!^_"]
+
+
+watch:
+- animeworld
