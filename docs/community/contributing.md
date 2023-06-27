@@ -17,8 +17,10 @@ Questa sezione spiega come aggiungere alla libreia la possibilità di scaricare 
 |Streamlare|❌|
 
 Per aggiungere un nuovo server basta seguire questi passi:
+
 1. Creare un file .py con il nome del server e metterlo nella cartella [servers](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/servers). (es `NuovoServer.py`)
-2. Usa questo template per la classe del nuovo server: 
+
+1. Usa questo template per la classe del nuovo server: 
 ```py
 from .Server import *
 
@@ -77,8 +79,11 @@ class NuovoServer(Server):
 		
 		pass #TODO: da completare
 ```
-3. Completare le varie funzioni (quelle segnate con `Opzionale` possono anche non essere completate), prendendo anche spunto dai vari server caricati nella cartella.
-4. Aggiungi la linea `from .NuovoServer import NuovoServer` al file [servers/__init__.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/servers/__init__.py).
-5. Modificare il file [episodio.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/episodio.py) aggiungendo il nome del server tra gli import ([Linea 11](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py#L11)) e modificare la funzione [__setServer](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py).
+
+1. Completare le varie funzioni (quelle segnate con `Opzionale` possono anche non essere completate), prendendo anche spunto dai vari server caricati nella cartella.
+
+1. Aggiungi la linea `from .NuovoServer import NuovoServer` al file [servers/__init__.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/servers/__init__.py).
+
+1. Modificare il file [episodio.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/episodio.py) aggiungendo il nome del server tra gli import ([Linea 11](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py#L11)) e modificare la funzione [__setServer](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py).
 
 Se tutto funziona correttamente apri una richiesta di [pull](https://github.com/MainKronos/AnimeWorld-API/pulls).

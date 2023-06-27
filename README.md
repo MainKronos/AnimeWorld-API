@@ -1,4 +1,4 @@
-[![AnimeWorld](/documentation/img/AnimeWorld-API.png)](https://github.com/MainKronos/AnimeWorld-API/blob/master/documentation/img/AnimeWorld-API.png)
+[![AnimeWorld](docs/static/img/AnimeWorld-API.png)](https://github.com/MainKronos/AnimeWorld-API/blob/master/docs/static/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
 ![Version](https://img.shields.io/pypi/v/animeworld)
@@ -55,7 +55,7 @@ scaricato
 ```
 
 ## Utilizzo Avanzato
-Per testare velocemete le funzionalità della libreria è possibile usare e consultare il file di esempio: [`example.py`](/documentation/example.py).
+Per testare velocemete le funzionalità della libreria è possibile usare e consultare il file di esempio: [`example.py`](/docs/static/example.py).
 
 Per un utilizzo avanzato consultare la [documentazione](https://github.com/MainKronos/AnimeWorld-API/wiki).
 
