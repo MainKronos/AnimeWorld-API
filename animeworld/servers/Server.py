@@ -58,6 +58,9 @@ class Server:
 
         Returns:
           Informazioni file episodio.
+        
+        Raises:
+          ServerNotSupported: Se il server non è supportato.
 
         Example:
           ```py
@@ -81,6 +84,8 @@ class Server:
         Returns:
             Link diretto.
         
+        Raises:
+          ServerNotSupported: Se il server non è supportato.
         
         Example:
           ```py
@@ -162,6 +167,10 @@ class Server:
         
         Returns:
           Nome del file scaricato. 
+        
+        Raises:
+          ServerNotSupported: Se il server non è supportato.
+          HardStoppedDownload: Il file in download è stato forzatamente interrotto.
 
         Example:
           ```py
@@ -176,23 +185,34 @@ class Server:
         """
         Scarica il file utilizzando httpx.
 
-        - `title`: Nome con cui verrà nominato il file scaricato.
-        - `folder`: Posizione in cui verrà spostato il file scaricato.
-        - `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
-          - `total_bytes`: Byte totali da scaricare.
-          - `downloaded_bytes`: Byte attualmente scaricati.
-          - `percentage`: Percentuale del progresso di download.
-          - `speed`: Velocità di download (byte/s)
-          - `elapsed`: Tempo trascorso dall'inizio del download.
-          - `eta`: Tempo stimato rimanente per fine del download.
-          - `status`: 'downloading' | 'finished' | 'aborted'
-          - `filename`: Nome del file in download.
-        - `opt`: Lista per delle opzioni aggiuntive.
-          - `'abort'`: Ferma forzatamente il download.
+        Args:
+          title: Nome con cui verrà nominato il file scaricato.
+          folder: Posizione in cui verrà spostato il file scaricato.
 
-        ```
-        return str # File scaricato
-        ```
+        Other parameters:
+          hook: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi:\n 
+            - `total_bytes`: Byte totali da scaricare.
+            - `downloaded_bytes`: Byte attualmente scaricati.
+            - `percentage`: Percentuale del progresso di download.
+            - `speed`: Velocità di download (byte/s)
+            - `elapsed`: Tempo trascorso dall'inizio del download.
+            - `eta`: Tempo stimato rimanente per fine del download.
+            - `status`: 'downloading' | 'finished' | 'aborted'
+            - `filename`: Nome del file in download.
+
+          opt: Lista per delle opzioni aggiuntive.\n
+            - `'abort'`: Ferma forzatamente il download.
+        
+        Returns:
+          Nome del file scaricato. 
+        
+        Raises:
+          HardStoppedDownload: Il file in download è stato forzatamente interrotto.
+
+        Example:
+          ```py
+          return str # File scaricato
+          ```
         """
         with SES.stream("GET", self.fileLink(), follow_redirects=True) as r:
             r.raise_for_status()
@@ -250,23 +270,34 @@ class Server:
         """
         Scarica il file utilizzando yutube_dl.
 
-        - `title`: Nome con cui verrà nominato il file scaricato.
-        - `folder`: Posizione in cui verrà spostato il file scaricato.
-        - `hook`: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi: 
-          - `total_bytes`: Byte totali da scaricare.
-          - `downloaded_bytes`: Byte attualmente scaricati.
-          - `percentage`: Percentuale del progresso di download.
-          - `speed`: Velocità di download (byte/s)
-          - `elapsed`: Tempo trascorso dall'inizio del download.
-          - `eta`: Tempo stimato rimanente per fine del download.
-          - `status`: 'downloading' | 'finished' | 'aborted'
-          - `filename`: Nome del file in download.
-        - `opt`: Lista per delle opzioni aggiuntive.
-          - `'abort'`: Ferma forzatamente il download.
+        Args:
+          title: Nome con cui verrà nominato il file scaricato.
+          folder: Posizione in cui verrà spostato il file scaricato.
+
+        Other parameters:
+          hook: Funzione che viene richiamata varie volte durante il download; la funzione riceve come argomento un dizionario con le seguenti chiavi:\n 
+            - `total_bytes`: Byte totali da scaricare.
+            - `downloaded_bytes`: Byte attualmente scaricati.
+            - `percentage`: Percentuale del progresso di download.
+            - `speed`: Velocità di download (byte/s)
+            - `elapsed`: Tempo trascorso dall'inizio del download.
+            - `eta`: Tempo stimato rimanente per fine del download.
+            - `status`: 'downloading' | 'finished' | 'aborted'
+            - `filename`: Nome del file in download.
+
+          opt: Lista per delle opzioni aggiuntive.\n
+            - `'abort'`: Ferma forzatamente il download.
         
-        ```
-        return str # File scaricato
-        ```
+        Returns:
+          Nome del file scaricato. 
+        
+        Raises:
+          HardStoppedDownload: Il file in download è stato forzatamente interrotto.
+        
+        Example:
+          ```py
+          return str # File scaricato
+          ```
         """
 
         class MyLogger(object):

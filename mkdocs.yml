@@ -17,8 +17,13 @@ theme:
         toggle:
           icon: 'material/lightbulb-outline'
           name: 'Switch to light mode'
+    icon:
+      repo: fontawesome/brands/github
     features:
     - navigation.sections
+    - search.suggest
+    - content.code.annotate
+    - content.code.copy
 
 repo_name: MainKronos/AnimeWorld-API
 repo_url: https://github.com/MainKronos/AnimeWorld-API
@@ -42,12 +47,17 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path: ['docs']
+      check_paths: true
   - admonition
   - pymdownx.details
   - pymdownx.superfences
 
 plugins:
+- autorefs
+- search:
+    lang: it
 - mkdocstrings:
     default_handler: python
     handlers:
@@ -56,22 +66,30 @@ plugins:
         options:
           docstring_style: google
           show_source: false
+
           show_root_heading: true
+          show_root_full_path: false
+          # show_category_heading: false
+          # show_object_full_path: false
+
           group_by_category: true
 
           show_root_toc_entry: false
           # signature_crossrefs: true ----
           # show_symbol_type_toc: true ----
+          
           # docstring_section_style: list
           line_length: 80
           separate_signature: true
+
+          annotations_path: brief
 
           show_signature: true
           # show_signature_annotations: true
 
           show_submodules: false
-
-          show_root_full_path: false
+          show_bases: false
+          
           merge_init_into_class: true
           filters: ["!^_"]
 

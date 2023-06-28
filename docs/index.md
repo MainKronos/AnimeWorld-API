@@ -41,6 +41,8 @@ Per argomenti più avanzati, vedere la sezione [Advanced Usage](usage/advanced.m
 
 La sezione [API Reference](api-reference/developer-interface.md) fornisce un riferimento API completo.
 
+Se vuoi contribuire al progetto, vai alla sezione [Contributing](community/contributing.md)
+
 ## Dipendense
 
 - [`httpx`](https://github.com/encode/httpx) - A next generation HTTP client for Python.

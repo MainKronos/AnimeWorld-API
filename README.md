@@ -29,10 +29,7 @@ print(res)
 ```
 La funzione estituirà un dizionario contentente per chiave il nome dell'anime e per valore il link della pagina di animeworld.
 ```python
-{
-	'name': 'No Game no Life',
-	'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1'
-}
+{'name': 'No Game no Life', 'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1', ...}
 ```
 È Possibile anche scaricare gli episodi di un anime.
 ```python
@@ -54,15 +51,17 @@ Episodio Numero: 1
 scaricato
 ```
 
-## Utilizzo Avanzato
-Per testare velocemete le funzionalità della libreria è possibile usare e consultare il file di esempio: [`example.py`](/docs/static/example.py).
+## Documentazione
 
-Per un utilizzo avanzato consultare la [documentazione](https://github.com/MainKronos/AnimeWorld-API/wiki).
+La documentazione completa è disponibile qui: [Documentazione](https://mainkronos.github.io/AnimeWorld-API/)
 
-## Contributing
-Se volete contribuire aprendo Issue o Pull a questa libreria siete ben accetti, tutto il codice sorgente e la documentazione è reperible su [GitHub](https://github.com/MainKronos/AnimeWorld-API).
+Per una panoramica di tutte le nozioni di base, vai alla sezione [QuickStart](https://mainkronos.github.io/AnimeWorld-API/usage/quickstart.md)
 
-Se volete aggiungere un nuovo server da cui scaricare gli episodio, allora leggere la sezione [contributing](https://github.com/MainKronos/AnimeWorld-API/blob/master/CONTRIBUTING.md).
+Per argomenti più avanzati, vedere la sezione [Advanced Usage](https://mainkronos.github.io/AnimeWorld-API/usage/advanced.md)
+
+La sezione [API Reference](https://mainkronos.github.io/AnimeWorld-API/api-reference/developer-interface.md) fornisce un riferimento API completo.
+
+Se vuoi contribuire al progetto, vai alla sezione [Contributing](https://mainkronos.github.io/AnimeWorld-API/community/contributing.md)
 
 ## Star History
 

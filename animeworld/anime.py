@@ -22,6 +22,10 @@ class Anime:
         """		
         Args:
           link: Link dell'anime.
+        
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
+          Error404: È una pagina 404.
         """
         
         self.link:str = link
@@ -32,6 +36,12 @@ class Anime:
     def __getHTML(self) -> httpx.Response:
         """
         Ottiene la pagina web di Animeworld dell'anime e aggiorna i cookies.
+
+        Returns:
+          La risposta di requests.
+
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
         
         Example:
           ```py
@@ -60,6 +70,9 @@ class Anime:
     def __check404(self):
         """
         Controlla se la pagina è una pagina 404.
+
+        Raises:
+          Error404: È una pagina 404.
         """
         if self.html.decode("utf-8").find('Errore 404') != -1: raise Error404(self.link)
 
@@ -68,6 +81,10 @@ class Anime:
     def __getServer(self) -> Dict[int, Dict[str, str]]:
         """
         Ottiene tutti i server in cui sono hostati gli episodi.
+
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
+          AnimeNotAvailable: L'anime non è ancora disponibile.
 
         Example:
           ```
@@ -100,6 +117,9 @@ class Anime:
         Returns:
           La trama dell'anime.
         
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
+        
         Example:
           ```py
           return str # Trama anime.
@@ -115,6 +135,9 @@ class Anime:
 
         Returns:
           Informazioni anime.
+        
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
         
         Example:
           ```py
@@ -154,6 +177,9 @@ class Anime:
 
         Returns:
           Nome anime.
+        
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
 
         Example:
           ```py
@@ -174,6 +200,7 @@ class Anime:
           Lista di oggetti Episodio.
         
         Raises:
+          AnimeNotAvailable: L'anime non è ancora disponibile.
           DeprecatedLibrary: Cambiamento del sito Animeworld.
           
         Example:

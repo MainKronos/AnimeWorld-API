@@ -7,8 +7,9 @@ from typing import *
 import time
 
 from .utility import SES
-from .exceptions import ServerNotSupported
-from .servers import Server, AnimeWorld_Server, YouTube, Streamtape
+from .exceptions import ServerNotSupported, HardStoppedDownload
+from .servers import AnimeWorld_Server, YouTube, Streamtape
+from .servers.Server import Server
 
 class Episodio:
     """
@@ -121,6 +122,9 @@ class Episodio:
         
         Returns:
           Nome del file scaricato. 
+        
+        Raises:
+          HardStoppedDownload: Il file in download è stato forzatamente interrotto.
 
         Example:
           ```py
@@ -176,6 +180,9 @@ class Episodio:
     def __choiceBestServer(self) -> Server:
         """
         Sceglie il server più veloce per il download dell'episodio.
+
+        Returns:
+          Il Server più veloce.
         """
         servers = self.links
 

@@ -12,6 +12,6 @@
     options:
       merge_init_into_class: false
 
-### ::: animeworld.Server.Server
+### ::: animeworld.Server
     options:
       merge_init_into_class: false
