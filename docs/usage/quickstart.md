@@ -3,18 +3,20 @@
 Per prima cosa importiamo la libreria:
 
 ```python
->>> import animeworld as aw
+import animeworld as aw
 ```
 
 ## Find
 
 Adesso proviamo a cercare un anime:
 
-???+ example
+```python
+res = aw.find("Sword Art Online")
+print(res)
+```
+??? Example "Output"
 
     ```python
-    >>> aw.find("Sword Art Online")
-    >>> res
     [
         {
             "id": 1717,
@@ -52,21 +54,92 @@ La funzione [find](../../api-reference/developer-interface/#animeworld.find) res
 
 ## Anime
 
-
-
 La classe [Anime](../../api-reference/developer-interface/#animeworld.Anime) è l'oggetto che stà alla base di questa libreria. Per istanziarla è necessario passare il link dell'anime, ottenuto direttamente dal sito di [AnimeWorld](https://www.animeworld.so/) o dalla funzione [find](../../api-reference/developer-interface/#animeworld.find) vista prima.
 
 ```py 
->>> anime = aw.Anime("https://www.animeworld.so/play/sword-art-online.N0onT")
+anime = aw.Anime("https://www.animeworld.so/play/sword-art-online.N0onT")
 ```
 
 !!! warning 
-    Se il link passato punta ad una pagina [404](https://www.animeworld.so/404) o ad un anime non ancora disponibile, verranno sollevate le rispettive eccezioni [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404) e [AnimeNotAvailable](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable).
+    Se il link passato punta ad una pagina [404](https://www.animeworld.so/404) o ad un anime non ancora disponibile, verranno sollevate le rispettive eccezioni: [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404) e [AnimeNotAvailable](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable).
 
 Con questa classe è possibile ottenere molte informazioni sull'anime: 
 
 ```py
->>> anime.getInfo()
+# Il titolo
+print("Titolo:", anime.getName())
+print("----------------------------------\n")
+
+# La trama
+print("Trama:", anime.getTrama())
+print("----------------------------------\n")
+
+# Informazioni generali
+info = anime.getInfo()
+print("Informazioni generali:\n", "\n".join([f"{x}: {info[x]}" for x in info]))
+print("----------------------------------\n")
 ```
 
-//TODO: da continuare
+??? Example "Output"
+
+    ```
+    Titolo: Sword Art Online
+    ----------------------------------
+
+    Trama: Kazuto "Kirito" Kirigaya, un genio della programmazione, entra in una realtà  virtuale interattiva con pluralità  di giocatori (una realtà  "massively multi-player online" o "MMO") denominata "Sword Art Online". Il problema sta nel fatto che, una volta entrati, se ne può uscire solo vincitori, completando il gioco, perché il game over equivale a morte certa del giocatore.
+    ----------------------------------
+
+    Informazioni generali:
+    Categoria: Anime
+    Audio: Giapponese
+    Data di Uscita: 08 Luglio 2012
+    Stagione: Estate 2012
+    Studio: A-1 Pictures
+    Genere: ['Avventura', 'Azione', 'Fantasy', 'Gioco', 'Romantico', 'Sentimentale']
+    Voto: 8.36 / 10
+    Durata: 23 min/ep
+    Episodi: 25
+    Stato: Finito
+    Visualizzazioni: 461.733
+    ----------------------------------
+    ```
+
+Ma soprattutto scaricare gli episodi:
+
+!!! Quote inline end "" 
+
+    !!! Info 
+        Se al metodo `getEpisodes()` non viene passato nessun argomento, verranno ottenuti **TUTTI** gli episodi dell'anime.
+
+    !!! Warning
+        `ep.number` è un attributo di tipo `str`, maggiori informazioni [qui](../../api-reference/developer-interface/#animeworld.Episodio).
+
+
+
+```py
+# Controllo se l'anime è disponibile
+try:
+    # Ottengo una lista di Episodi
+    # che mi interessano
+    episodi = anime.getEpisodes([1, 2, 4])
+except aw.EpisodeNotAvailable as e:
+    print(e)
+else:
+    # E li scarico
+    for ep in episodi:
+        print(f"Scarico l'episodio {ep.number}.")
+        # Uno alla volta...
+        ep.download() 
+        print(f"Download completato.")
+```
+
+??? Example "Output"
+
+    ```
+    Scarico l'episodio 1.
+    Download completato.
+    Scarico l'episodio 2.
+    Download completato.
+    Scarico l'episodio 4.
+    Download completato.
+    ```

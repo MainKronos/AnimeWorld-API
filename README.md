@@ -1,9 +1,10 @@
 [![AnimeWorld](docs/static/img/AnimeWorld-API.png)](https://github.com/MainKronos/AnimeWorld-API/blob/master/docs/static/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
-![Version](https://img.shields.io/pypi/v/animeworld)
+[![Version](https://img.shields.io/pypi/v/animeworld)](https://github.com/MainKronos/AnimeWorld-API/releases/latest)
 ![Activity](https://img.shields.io/github/commit-activity/w/MainKronos/AnimeWorld-API) 
-![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)
+[![Publish to PyPI](https://github.com/MainKronos/AnimeWorld-API/workflows/Publish%20to%20PyPI/badge.svg)](https://pypi.org/project/animeworld/)
+[![Deploy MkDocs](https://github.com/MainKronos/AnimeWorld-API/actions/workflows/deploy-mkdocs.yml/badge.svg)](https://github.com/MainKronos/AnimeWorld-API/actions/workflows/deploy-mkdocs.yml)
 
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/animeworld)
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/animeworld)

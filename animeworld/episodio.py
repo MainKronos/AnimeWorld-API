@@ -16,6 +16,9 @@ class Episodio:
     Attributes:
       number: Numero dell'episodio.
       links: Lista dei server in cui è hostato l'episodio.
+
+    Warning:
+      L'attributo `number` è di tipo `str` perchè è possibile che capitino episodi con un numero composto (es. `5.5`, `268-269`), è un caso molto raro ma possibile.
     """
 
     def __init__(self, number: str, link: str, legacy: List[Dict] = []):

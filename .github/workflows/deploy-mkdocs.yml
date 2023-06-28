@@ -1,4 +1,4 @@
-name: Deploy MkDocs with GitHub Pages
+name: Deploy MkDocs
 
 on:
   # Allows you to run this workflow manually from the Actions tab

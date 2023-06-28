@@ -192,9 +192,15 @@ class Anime:
     #############
 
     @HealthCheck
-    def getEpisodes(self) -> List[Episodio]: # Ritorna una lista di Episodi
+    def getEpisodes(self, nums: List[int]|List[str] = None) -> List[Episodio]: # Ritorna una lista di Episodi
         """
         Ottiene tutti gli episodi dell'anime.
+
+        Args:
+          nums: I numeri degli episodi da ottenere
+
+        Note:
+          Se `nums` è `None` o `[]` allora il metodo restituisce tutti gli episodi dell'anime.
 
         Returns:
           Lista di oggetti Episodio.
@@ -211,6 +217,10 @@ class Anime:
           ]
           ```
         """
+
+        # Controllo se viene passata una lista di episodi da filtrare
+        if nums: nums = list(map(str, nums))
+
         soupeddata = BeautifulSoup(self.html.decode('utf-8', 'ignore'), "html.parser")
 
         a_link = soupeddata.select_one('li.episode > a')
@@ -245,4 +255,8 @@ class Anime:
                     "link": "https://www.animeworld.so" + data.get("href")
                 })
 
-        return [Episodio(x['number'], x['link'], x['legacy']) for x in list(raw_eps.values())]
+        return [
+            Episodio(x['number'], x['link'], x['legacy']) 
+            for x in list(raw_eps.values())
+            if nums and x['number'] in nums
+        ]

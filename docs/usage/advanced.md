@@ -4,6 +4,4 @@
 --8<-- "static/example.py"
 ```
 
-
-
-//TODO: da continuare
+//TODO: da ampliare

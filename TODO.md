@@ -3,3 +3,4 @@
 - [ ] Riscrivere tutta la wiki in MkDocs
 - [x] Hostare la wiki su GitHub Pages
 - [ ] Controllare se il cookie `SecurityAW` è ancora necessario
+- [x] Aggiungere un modo per filtrare gli episodi alla chiamata di `Anime.getEpisodes()`
