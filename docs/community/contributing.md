@@ -4,17 +4,7 @@
 
 Questa sezione spiega come aggiungere alla libreia la possibilità di scaricare un episodio da un'altro server non ancora supportato.
 
-|Name|Supported|
-|:---|:-------:|
-|AnimeWorld_Server|✔️|
-|Streamtape|✔️|
-|YouTube|✔️|
-|StreamHide|❌|
-|FileMoon|❌|
-|Streamtape|❌|
-|Doodstream|❌|
-|StreamSB|❌|
-|Streamlare|❌|
+--8<-- "static/server.md"
 
 Per aggiungere un nuovo server basta seguire questi passi:
 

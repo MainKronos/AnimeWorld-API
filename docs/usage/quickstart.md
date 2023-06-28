@@ -2,7 +2,7 @@
 
 Per prima cosa importiamo la libreria:
 
-```python
+```python linenums="1"
 import animeworld as aw
 ```
 
@@ -10,7 +10,7 @@ import animeworld as aw
 
 Adesso proviamo a cercare un anime:
 
-```python
+```python linenums="2"
 res = aw.find("Sword Art Online")
 print(res)
 ```
@@ -56,16 +56,16 @@ La funzione [find](../../api-reference/developer-interface/#animeworld.find) res
 
 La classe [Anime](../../api-reference/developer-interface/#animeworld.Anime) è l'oggetto che stà alla base di questa libreria. Per istanziarla è necessario passare il link dell'anime, ottenuto direttamente dal sito di [AnimeWorld](https://www.animeworld.so/) o dalla funzione [find](../../api-reference/developer-interface/#animeworld.find) vista prima.
 
-```py 
+```py linenums="4"
 anime = aw.Anime("https://www.animeworld.so/play/sword-art-online.N0onT")
 ```
 
 !!! warning 
-    Se il link passato punta ad una pagina [404](https://www.animeworld.so/404) o ad un anime non ancora disponibile, verranno sollevate le rispettive eccezioni: [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404) e [AnimeNotAvailable](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable).
+    Se il link passato punta ad una pagina [404](https://www.animeworld.so/404) verrannà sollevata l'eccezione [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404).
 
-Con questa classe è possibile ottenere molte informazioni sull'anime: 
+Con questa classe è possibile ottenere informazioni sull'anime: 
 
-```py
+```py linenums="5"
 # Il titolo
 print("Titolo:", anime.getName())
 print("----------------------------------\n")
@@ -76,7 +76,9 @@ print("----------------------------------\n")
 
 # Informazioni generali
 info = anime.getInfo()
-print("Informazioni generali:\n", "\n".join([f"{x}: {info[x]}" for x in info]))
+print("Informazioni generali:\n", "\n".join(
+    [f"{x}: {info[x]}" for x in info]
+))
 print("----------------------------------\n")
 ```
 
@@ -116,21 +118,21 @@ Ma soprattutto scaricare gli episodi:
 
 
 
-```py
-# Controllo se l'anime è disponibile
-try:
-    # Ottengo una lista di Episodi
-    # che mi interessano
-    episodi = anime.getEpisodes([1, 2, 4])
-except aw.EpisodeNotAvailable as e:
-    print(e)
-else:
-    # E li scarico
-    for ep in episodi:
-        print(f"Scarico l'episodio {ep.number}.")
-        # Uno alla volta...
-        ep.download() 
-        print(f"Download completato.")
+```py linenums="19"
+# Ottengo una lista di Episodi
+# che mi interessano
+episodi = anime.getEpisodes([1, 2, 4])
+
+
+# E li scarico
+for ep in episodi:
+
+    print(f"Scarico l'episodio {ep.number}.")
+
+    # Uno alla volta...
+    ep.download() 
+
+    print(f"Download completato.")
 ```
 
 ??? Example "Output"

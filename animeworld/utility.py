@@ -26,13 +26,13 @@ class MySession(httpx.Client):
         """Aggiunge il csrf_token all'headers."""
 
         csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
-        SecurityAW = re.compile(br'document\.cookie="SecurityAW=(.+) ;')
+        cookie = re.compile(br'document\.cookie\s*?=\s*?"(.+?)=(.+?)"\s*?;')
         for _ in range(2): # numero di tentativi
             res = self.get("https://www.animeworld.so", follow_redirects=True)
 
-            m = SecurityAW.search(res.content)
+            m = cookie.search(res.content)
             if m:
-                self.cookies.update({'SecurityAW': m.group(1).decode('utf-8')})
+                self.cookies.update({m.group(1).decode('utf-8'): m.group(2).decode('utf-8')})
                 continue
             
             m = csrf_token.search(res.content)

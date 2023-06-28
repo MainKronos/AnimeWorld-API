@@ -2,5 +2,5 @@
 - [x] Riscrivere tutta la documentazione all'interno del codice (Docstring) nello style Google
 - [ ] Riscrivere tutta la wiki in MkDocs
 - [x] Hostare la wiki su GitHub Pages
-- [ ] Controllare se il cookie `SecurityAW` è ancora necessario
+- [x] Gestito il problema dei cookie
 - [x] Aggiungere un modo per filtrare gli episodi alla chiamata di `Anime.getEpisodes()`
