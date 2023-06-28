@@ -43,7 +43,7 @@ La sezione [API Reference](api-reference/developer-interface.md) fornisce un rif
 
 Se vuoi contribuire al progetto, vai alla sezione [Contributing](community/contributing.md)
 
-## Dipendense
+## Dipendenze
 
 - [`httpx`](https://github.com/encode/httpx) - A next generation HTTP client for Python.
 
