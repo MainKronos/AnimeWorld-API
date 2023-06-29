@@ -58,6 +58,9 @@ markdown_extensions:
 
 plugins:
 - autorefs
+- git-revision-date-localized:
+    type: date 
+    locale: it
 - search:
     lang: it
 - mkdocstrings:

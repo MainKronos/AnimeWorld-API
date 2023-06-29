@@ -186,5 +186,3 @@ In questo esempio il download viene fermato dopo 5 secondi.
 ```py title="example.py" linenums="1"
 --8<-- "static/example.py"
 ```
-
-//TODO: da ampliare
