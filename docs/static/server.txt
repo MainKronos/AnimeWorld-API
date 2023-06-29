@@ -1,4 +1,4 @@
-|Name|Name|Name|
+||Server||
 |:---|:---|:---|
 |✔️ AnimeWorld_Server|❌ StreamHide|❌ Doodstream|
 |✔️ Streamtape|❌ FileMoon|❌ StreamSB|

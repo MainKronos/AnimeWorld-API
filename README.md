@@ -1,4 +1,4 @@
-[![AnimeWorld](docs/static/img/AnimeWorld-API.png)](https://github.com/MainKronos/AnimeWorld-API/blob/master/docs/static/img/AnimeWorld-API.png)
+[![AnimeWorld](https://mainkronos.github.io/AnimeWorld-API/)](https://github.com/MainKronos/AnimeWorld-API/blob/master/docs/static/img/AnimeWorld-API.png)
 # AnimeWorld-API
 
 [![Version](https://img.shields.io/pypi/v/animeworld)](https://github.com/MainKronos/AnimeWorld-API/releases/latest)

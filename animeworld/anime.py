@@ -258,5 +258,5 @@ class Anime:
         return [
             Episodio(x['number'], x['link'], x['legacy']) 
             for x in list(raw_eps.values())
-            if nums and x['number'] in nums
+            if not nums or x['number'] in nums
         ]

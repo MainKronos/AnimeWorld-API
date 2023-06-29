@@ -116,7 +116,42 @@ server.download()
 
 I server supportati sono querelli indicati di sotto, se vuoi contribuire ad aggiungerne altri puoi dare un occhiata alla sezione [Contributing](../../community/contributing/).
 
---8<-- "static/server.md"
+--8<-- "static/server.txt"
+
+## Download
+
+!!! Warning inline end
+    Se ci sono dei caratteri non ammessi nel nome del file (`#%&{}<>*?/$!'":@+\``|=`), questi verranno rimossi automaticamente. Per ottenere il nome del file effettivamente scritto su disco è possibile ottenerlo dal ritorno del metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download).
+
+
+Per scaricare un episodio è possibile utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), che scarica il video utilizzando il server piú veloce al momento del download.
+
+È possibile impostare il nome del file utilizzando il parametro `title` e la cartella di destinazione utilizzando il parametro `folder`.
+
+### hook
+
+Il parametro `hook` è più interessante, questo è un riferimento ad una funzione che poi verrà chiamata ogni volta che viene scaricato un chunk del video (~524 Kb). Questo è utile per mostrare a schermo il progresso del download. La funzione deve avere un singolo parametro di tipo `Dict[str, Any]`.
+
+Un esempio di un possibile dizionario passato alla funzione hook è il seguente:
+
+```py
+{
+    "total_bytes": 234127340, # Dimensione totale del video in byte
+    "downloaded_bytes": 524288, # Dimensione scaricata in byte
+    "percentage": 0.0022393283928310126, # Percentuale scaricata [0, 1]
+    "speed": 3048288.673006227, # Velocità di download in byte/s
+    "elapsed": 0.17199420928955078, # Tempo trascorso in secondi
+    "filename": "1 - AnimeWorld Server.mp4", # Nome del file
+    "eta": 76.63416331551707, # Tempo rimanente stimato in secondi
+    "status": "downloading", # Stato del download ('downloading' | 'finished' | 'aborted')
+}
+```
+
+### opt
+
+È anche possibile fermare forzatamente il download utilizzando il parametro `opt`. Questo parametro è una lista di stringhe, ogni stringa rappresenta un'opzione. Attualmente l'unica opzione possibile è `abort`, che ferma il download. 
+
+Se in opt compare durante il dopwnload la stringa `abort`, il download viene fermato e il file parzialmente scaricato viene eliminato.
 
 ---
 

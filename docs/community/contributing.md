@@ -4,7 +4,7 @@
 
 Questa sezione spiega come aggiungere alla libreia la possibilità di scaricare un episodio da un'altro server non ancora supportato.
 
---8<-- "static/server.md"
+--8<-- "static/server.txt"
 
 Per aggiungere un nuovo server basta seguire questi passi:
 

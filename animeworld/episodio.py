@@ -103,7 +103,7 @@ class Episodio:
 
     def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
         """
-        Scarica l'episodio dal primo server funzionante della lista links.
+        Scarica l'episodio dal server più veloce.
 
         Args:
           title: Nome con cui verrà nominato il file scaricato.

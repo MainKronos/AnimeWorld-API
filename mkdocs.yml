@@ -19,6 +19,8 @@ theme:
           name: 'Switch to light mode'
     icon:
       repo: fontawesome/brands/github
+    logo: static/img/logo.svg
+    favicon: static/img/logo.svg
     features:
     - navigation.sections
     - search.suggest
