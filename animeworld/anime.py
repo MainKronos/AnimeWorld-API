@@ -192,7 +192,7 @@ class Anime:
     #############
 
     @HealthCheck
-    def getEpisodes(self, nums: List[int]|List[str] = None) -> List[Episodio]: # Ritorna una lista di Episodi
+    def getEpisodes(self, nums: Union[List[int], List[str]] = None) -> List[Episodio]: # Ritorna una lista di Episodi
         """
         Ottiene tutti gli episodi dell'anime.
 
