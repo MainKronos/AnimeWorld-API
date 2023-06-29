@@ -151,7 +151,33 @@ Un esempio di un possibile dizionario passato alla funzione hook è il seguente:
 
 È anche possibile fermare forzatamente il download utilizzando il parametro `opt`. Questo parametro è una lista di stringhe, ogni stringa rappresenta un'opzione. Attualmente l'unica opzione possibile è `abort`, che ferma il download. 
 
-Se in opt compare durante il dopwnload la stringa `abort`, il download viene fermato e il file parzialmente scaricato viene eliminato.
+Se in opt compare, durante il download, la stringa `abort` allora il download viene fermato e il file parzialmente scaricato viene eliminato.
+
+Un esempio di utilizzo del parametro `opt` è il seguente:
+
+```py linenums="1"
+import animeworld as aw
+import time
+from threading import Thread
+
+anime = aw.Anime("...")
+episodio = anime.getEpisodes()[0]
+
+# Definisco la funzione per il thread
+def gestioneDownload(lista_opzioni):
+    time.sleep(5)
+    lista_opzioni.append("abort")
+
+
+opt = [] # Array per le opzioni dinamiche
+t = Thread(target=gestioneDownload, args=(opt,)) # Creo il thread
+
+t.start() # Avvio il thread
+
+episodio.download(opt=opt) # Avvio il download
+```
+
+In questo esempio il download viene fermato dopo 5 secondi.
 
 ---
 

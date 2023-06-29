@@ -1,6 +1,0 @@
-- [x] Correggere errore [#103](https://github.com/MainKronos/Sonarr-AnimeDownloader/issues/103) che si verifica quando un url di download punta ad una pagina insesistente
-- [x] Riscrivere tutta la documentazione all'interno del codice (Docstring) nello style Google
-- [ ] Riscrivere tutta la wiki in MkDocs
-- [x] Hostare la wiki su GitHub Pages
-- [x] Gestito il problema dei cookie
-- [x] Aggiungere un modo per filtrare gli episodi alla chiamata di `Anime.getEpisodes()`
