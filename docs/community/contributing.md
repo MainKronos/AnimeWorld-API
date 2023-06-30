@@ -2,7 +2,7 @@
 
 ## Server
 
-Questa sezione spiega come aggiungere alla libreia la possibilità di scaricare un episodio da un'altro server non ancora supportato.
+Questa sezione spiega come aggiungere alla libreria la possibilità di scaricare un episodio da un altro server non ancora supportato.
 
 --8<-- "static/server.txt"
 
