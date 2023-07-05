@@ -4,7 +4,7 @@ site_url: https://github.com/MainKronos/AnimeWorld-API
 
 theme:
     name: 'material'
-    language: custom
+    language: it
     palette:
       - scheme: 'default'
         media: '(prefers-color-scheme: light)'
@@ -21,7 +21,6 @@ theme:
       repo: fontawesome/brands/github
     logo: static/img/logo.svg
     favicon: static/img/logo.svg
-    custom_dir: docs/static/overrides
     features:
     - navigation.sections
     - search.suggest
@@ -43,22 +42,6 @@ nav:
   - Community:
       - Contributing: 'community/contributing.md'
       - Code of Conduct: 'community/code-of-conduct.md'
-
-extra:
-  consent:
-    title: Invio informazioni anonime
-    description:  >- 
-      Utilizzo i cookie per analizzare l'efficacia della documentazione e se gli utenti riescono a trovare cosa stanno cercando. 
-      Con il tuo consenso, mi aiuterai a migliorare la documentazione.<br>
-      Nessun dato personale verrà registrato.
-    actions:
-      - accept
-      - reject
-  analytics:
-    provider: google
-    property: G-E5RNLK3ZX3
-
-copyright: <a href="#__consent">Change cookie settings</a>
 
 markdown_extensions:
   - pymdownx.highlight:
