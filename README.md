@@ -56,13 +56,13 @@ scaricato
 
 La documentazione completa è disponibile qui: [Documentazione](https://mainkronos.github.io/AnimeWorld-API/)
 
-Per una panoramica di tutte le nozioni di base, vai alla sezione [QuickStart](https://mainkronos.github.io/AnimeWorld-API/usage/quickstart.md)
+Per una panoramica di tutte le nozioni di base, vai alla sezione [QuickStart](https://mainkronos.github.io/AnimeWorld-API/usage/quickstart)
 
-Per argomenti più avanzati, vedere la sezione [Advanced Usage](https://mainkronos.github.io/AnimeWorld-API/usage/advanced.md)
+Per argomenti più avanzati, vedere la sezione [Advanced Usage](https://mainkronos.github.io/AnimeWorld-API/usage/advanced)
 
-La sezione [API Reference](https://mainkronos.github.io/AnimeWorld-API/api-reference/developer-interface.md) fornisce un riferimento API completo.
+La sezione [API Reference](https://mainkronos.github.io/AnimeWorld-API/api-reference/developer-interface) fornisce un riferimento API completo.
 
-Se vuoi contribuire al progetto, vai alla sezione [Contributing](https://mainkronos.github.io/AnimeWorld-API/community/contributing.md)
+Se vuoi contribuire al progetto, vai alla sezione [Contributing](https://mainkronos.github.io/AnimeWorld-API/community/contributing)
 
 ## Star History
 
