@@ -126,6 +126,9 @@ def find(keyword: str) -> List[Dict]:
         for k in elem:
             if elem[k] == "??":
                 elem[k] = None
+        if elem["release"].find("??") != -1:
+            elem["release"] = elem["release"].replace("??", "1")
+
 
     data.sort(key=lambda a: a["dub"])
 
