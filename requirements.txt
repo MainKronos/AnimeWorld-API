@@ -1,0 +1,4 @@
+httpx
+httpx[http2]
+youtube_dl
+beautifulsoup4

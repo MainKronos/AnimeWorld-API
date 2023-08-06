@@ -19,7 +19,7 @@ class Streamtape(Server):
           ```
         """
         
-        sb_get = SES.get(self.link)
+        sb_get = SES.get(self.link, follow_redirects=True)
 
         if sb_get.status_code == 200:
             soupeddata = BeautifulSoup(sb_get.content, "html.parser")

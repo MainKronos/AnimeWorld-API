@@ -101,7 +101,7 @@ class Server:
         """
         url = self.fileLink()
 
-        r = SES.head(url)
+        r = SES.head(url, follow_redirects=True)
         r.raise_for_status()
 
         return {
