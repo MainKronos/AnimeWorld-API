@@ -115,7 +115,11 @@ def find(keyword: str) -> List[Dict]:
       ```
     """
 
-    locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
+    try:
+        locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
+    except locale.Error:
+        pass
+
     res = SES.post("https://www.animeworld.so/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
 
     data = res.json()

@@ -17,6 +17,5 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - run: sudo locale-gen
     - name: Test with unittest
       run: python -m unittest discover -v -s ./tests -p test_*.py
