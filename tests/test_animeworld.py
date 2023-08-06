@@ -47,8 +47,6 @@ class TestGeneral(unittest.TestCase):
     self.assertIn("malVote", anime)
     self.assertIn("trailer", anime)
 
-    self.fail("Test")
-
 class TestExceptions(unittest.TestCase):
   def test_Error404(self) -> None:
     """
