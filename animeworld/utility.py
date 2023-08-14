@@ -7,10 +7,6 @@ import inspect
 from typing import *
 import re
 
-from datetime import datetime
-import time
-import locale
-
 from .exceptions import DeprecatedLibrary
 
 class MySession(httpx.Client):
@@ -115,11 +111,6 @@ def find(keyword: str) -> List[Dict]:
       ]
       ```
     """
-
-    try:
-        locale.setlocale(locale.LC_TIME, "it_IT.UTF-8")
-    except locale.Error:
-        pass
 
     res = SES.post("https://www.animeworld.so/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
 
