@@ -88,7 +88,8 @@ def find(keyword: str) -> List[Dict]:
           "name": str, # Nome dell'anime
           "jtitle": str, # Nome giapponese (con caratteri latini)
           "studio": str, # Studio dell'anime
-          "release": datetime, # Giorno, Mese e Anno della release dell'anime
+          "release": str | None, # Giorno, Mese e Anno della release dell'anime.
+                                 # Se non disponibile ("??" al posto della data), ritorna None
           "episodes": int, # Numero di episodi
           "state": str, # Es. "0", "1", ...
           "story": str, # Trama dell'anime
@@ -130,8 +131,6 @@ def find(keyword: str) -> List[Dict]:
         for k in elem:
             if elem[k] == "??":
                 elem[k] = None
-        if elem["release"] and elem["release"].find("??") != -1:
-            elem["release"] = elem["release"].replace("??", "1")
 
     data.sort(key=lambda a: a["dub"])
 
@@ -141,7 +140,7 @@ def find(keyword: str) -> List[Dict]:
         "name": elem["name"],
         "jtitle": elem["jtitle"],
         "studio": elem["studio"],
-        "release": datetime.strptime(elem["release"], "%d %B %Y") if elem["release"] is not None else None,
+        "release": elem["release"],
         "episodes": int(elem["episodes"]) if elem["episodes"] is not None else None,
         "state": elem["state"],
         "story": elem["story"],
