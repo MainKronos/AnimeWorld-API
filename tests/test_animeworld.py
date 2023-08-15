@@ -69,7 +69,7 @@ class TestExceptions(unittest.TestCase):
     """
     Testa il corretto riconoscimento di un server non supportato.
     """
-    ep = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.Ihtnf").getEpisodes())
+    ep = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
 
     server = [s for s in ep.links if s.Nid == 2][0]
 
@@ -81,7 +81,7 @@ class TestAnimeWorld(unittest.TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     """Inizializza la classe Anime."""
-    cls.anime = aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.Ihtnf")
+    cls.anime = aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ")
 
   def test_anime(self):
     """
