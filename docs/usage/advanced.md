@@ -179,6 +179,24 @@ episodio.download(opt=opt) # Avvio il download
 
 In questo esempio il download viene fermato dopo 5 secondi.
 
+### I/O Buffer
+
+È possibile scaricare un episodio usando direttamente un descrittore di file invece che una stringa per la directory. Basta passare al parametro `folder` un tipo [IOBase](https://docs.python.org/3/library/io.html#i-o-base-classes).
+
+```py linenums="1"
+import animeworld as aw
+import io
+
+anime = aw.Anime("...")
+episodio = anime.getEpisodes()[0]
+
+buffer = io.BytesIO() # Alloco un buffer in memoria
+
+episodio.download(folder=buffer) # Avvio il download
+```
+
+In questo esempio l'episodio scaricato viene scritto in memoria senza essere salvato come file.
+
 ---
 
 ## Esempio completo

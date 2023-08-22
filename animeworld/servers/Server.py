@@ -1,5 +1,5 @@
-import os, time
-from typing import Dict, List, Optional, Callable
+import os, time, io
+from typing import Dict, List, Optional, Callable, Union
 from datetime import datetime
 import youtube_dl
 
@@ -143,7 +143,7 @@ class Server:
             }
 
 
-    def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
+    def download(self, title: Optional[str]=None, folder: Union[str, io.IOBase]='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
         """
         Scarica l'episodio dal primo server funzionante della lista links.
 
@@ -180,7 +180,7 @@ class Server:
         raise ServerNotSupported(self.name)
 
     # Protected
-    def _downloadIn(self, title: str, folder: str, *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]: # Scarica l'episodio
+    def _downloadIn(self, title: str, folder: Union[str, io.IOBase], *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]: # Scarica l'episodio
 
         """
         Scarica il file utilizzando httpx.
@@ -225,48 +225,56 @@ class Server:
             start = time.time()
             step = time.time()
 
+            fd:io.IOBase = None
+            if isinstance(folder, io.IOBase): fd = folder
+            else: fd = open(f"{os.path.join(folder,file)}", 'wb')
+
             try:
-                with open(f"{os.path.join(folder,file)}", 'wb') as f:
-                    for chunk in r.iter_bytes(chunk_size = 524288):
-                        if chunk: 
-                            f.write(chunk)
-                            f.flush()
-                            
-                            current_lenght += len(chunk)
+                for chunk in r.iter_bytes(chunk_size = 524288):
+                    if chunk: 
+                        fd.write(chunk)
+                        fd.flush()
+                        
+                        current_lenght += len(chunk)
 
-                            hook({
-                                'total_bytes': total_length,
-                                'downloaded_bytes': current_lenght,
-                                'percentage': current_lenght/total_length,
-                                'speed': len(chunk) / (time.time() - step) if (time.time() - step) != 0 else 0,
-                                'elapsed': time.time() - start,
-                                'filename': file,
-                                'eta': ((total_length - current_lenght) / len(chunk)) * (time.time() - step),
-                                'status': 'downloading' if "abort" not in opt else "aborted"
-                            })
-
-                            if "abort" in opt: raise HardStoppedDownload(file)
-
-                            step = time.time()
-                            
-                    else:
                         hook({
                             'total_bytes': total_length,
-                            'downloaded_bytes': total_length,
-                            'percentage': 1,
-                            'speed': 0,
+                            'downloaded_bytes': current_lenght,
+                            'percentage': current_lenght/total_length,
+                            'speed': len(chunk) / (time.time() - step) if (time.time() - step) != 0 else 0,
                             'elapsed': time.time() - start,
-                            'eta': 0,
-                            'status': 'finished'
+                            'filename': file,
+                            'eta': ((total_length - current_lenght) / len(chunk)) * (time.time() - step),
+                            'status': 'downloading' if "abort" not in opt else "aborted"
                         })
 
-                        return file # Se il file è stato scaricato correttamente
+                        if "abort" in opt: raise HardStoppedDownload(file)
+
+                        step = time.time()
+                        
+                else:
+                    hook({
+                        'total_bytes': total_length,
+                        'downloaded_bytes': total_length,
+                        'percentage': 1,
+                        'speed': 0,
+                        'elapsed': time.time() - start,
+                        'eta': 0,
+                        'status': 'finished'
+                    })
+                    
+                    if isinstance(folder, str): fd.close()
+                    else: fd.seek(0)
+                    return file # Se il file è stato scaricato correttamente
             except HardStoppedDownload:
-                os.remove(f"{os.path.join(folder,file)}")
+                if isinstance(folder, str): 
+                    fd.close()
+                    os.remove(f"{os.path.join(folder,file)}")
+                else: fd.seek(0)
                 return None
 
     # Protected
-    def _dowloadEx(self, title: str, folder: str, *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]:
+    def _dowloadEx(self, title: str, folder: Union[str, io.IOBase], *, hook: Callable[[Dict], None], opt: List[str]) -> Optional[str]:
         """
         Scarica il file utilizzando yutube_dl.
 
@@ -300,6 +308,9 @@ class Server:
           ```
         """
 
+        tmp = ''
+        if isinstance(folder, str): tmp = folder
+
         class MyLogger(object):
             def debug(self, msg):
                 pass
@@ -325,7 +336,7 @@ class Server:
             if "abort" in opt: raise HardStoppedDownload(d['filename'])
 
         ydl_opts = {
-            'outtmpl': f"{os.path.join(folder,title)}.%(ext)s",
+            'outtmpl': f"{os.path.join(tmp,title)}.%(ext)s",
             'logger': MyLogger(),
             'progress_hooks': [my_hook],
         }
@@ -336,6 +347,11 @@ class Server:
             try:
                 ydl.download([url])
             except HardStoppedDownload:
-                os.remove(f"{os.path.join(folder,filename)}")
+                os.remove(f"{os.path.join(tmp,filename)}")
                 return None
+            if isinstance(folder, io.IOBase):
+                with open(os.path.join(tmp,filename), 'rb') as f:
+                    folder.write(f.read())
+                f.seek(0)
+                os.remove(f"{os.path.join(tmp,filename)}")
             return filename

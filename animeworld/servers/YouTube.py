@@ -55,7 +55,7 @@ class YouTube(Server):
 
 		return self._fileInfoEx()
 
-	def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
+	def download(self, title: Optional[str]=None, folder: Union[str, io.IOBase]='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]:
 		"""
         Scarica l'episodio.
 

@@ -5,6 +5,7 @@ import httpx
 from bs4 import BeautifulSoup
 from typing import *
 import time
+import io
 
 from .utility import SES
 from .exceptions import ServerNotSupported, HardStoppedDownload
@@ -101,7 +102,7 @@ class Episodio:
 
         raise err
 
-    def download(self, title: Optional[str]=None, folder: str='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
+    def download(self, title: Optional[str]=None, folder: Union[str, io.IOBase]='', *, hook: Callable[[Dict], None]=lambda *args:None, opt: List[str]=[]) -> Optional[str]: # Scarica l'episodio con il primo link nella lista
         """
         Scarica l'episodio dal server più veloce.
 

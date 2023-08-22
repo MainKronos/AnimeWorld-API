@@ -1,7 +1,8 @@
 import unittest
 
 import unittest
-import random
+import random, io, time
+from threading import Thread
 
 import animeworld as aw
 from animeworld.servers import AnimeWorld_Server, Streamtape
@@ -102,45 +103,86 @@ class TestAnimeWorld(unittest.TestCase):
     self.assertIn('Durata', info)
     self.assertIn('Episodi', info)
     self.assertIn('Stato', info)
-    self.assertIn('Visualizzazioni', info)
+    self.assertIn('Visualizzazioni', info)   
 
-  def test_servers(self):
-    """
-    Controlli relativi ai server.
-    """
+  def test_episodio(self):
     ep = random.choice(self.anime.getEpisodes())
 
-    servers = ep.links
+    self.assertIsInstance(ep, aw.Episodio)
+    self.assertIsInstance(ep.number, str)
+    self.assertIsInstance(ep.links, list)
 
-    animeworld_server = [e for e in servers if isinstance(e, AnimeWorld_Server)][0]
-    streamtape_server = [e for e in servers if isinstance(e, Streamtape)][0]
+class TestServer(unittest.TestCase):
+  @classmethod
+  def setUpClass(cls) -> None:
+    """Sceglie un episodio per i test."""
+    cls.episodio = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
+  
+  @staticmethod
+  def stopDownload(opt:list):
+    time.sleep(1)
+    opt.append("abort")
+  
+  def test_AnimeWorld_Server(self) -> None:
 
-    self.assertEqual(animeworld_server.Nid, 9)
-    self.assertEqual(animeworld_server.name, "AnimeWorld Server")
+    servers = [e for e in self.episodio.links if isinstance(e, AnimeWorld_Server)]
 
-    self.assertEqual(streamtape_server.Nid, 8)
-    self.assertEqual(streamtape_server.name, "Streamtape")
+    if len(servers) == 0:
+      self.skipTest('Il server AnimeWorld_Server non esiste in questo episodio.')
+      return
+    
+    server = servers[0]
 
-    self.assertIsInstance(animeworld_server.fileLink(), str)
-    self.assertIsInstance(streamtape_server.fileLink(), str)
+    self.assertEqual(server.Nid, 9)
+    self.assertEqual(server.name, "AnimeWorld Server")
+    self.assertIsInstance(server.fileLink(), str)
 
-    animeworld_info = animeworld_server.fileInfo()
-    self.assertIsInstance(animeworld_info, dict)
-    self.assertIn("content_type", animeworld_info)
-    self.assertIn("total_bytes", animeworld_info)
-    self.assertIn("last_modified", animeworld_info)
-    self.assertIn("server_name", animeworld_info)
-    self.assertIn("server_id", animeworld_info)
-    self.assertIn("url", animeworld_info)
+    info = server.fileInfo()
+    self.assertIsInstance(info, dict)
+    self.assertIn("content_type", info)
+    self.assertIn("total_bytes", info)
+    self.assertIn("last_modified", info)
+    self.assertIn("server_name", info)
+    self.assertIn("server_id", info)
+    self.assertIn("url", info)
 
-    streamtape_info = streamtape_server.fileInfo()
-    self.assertIsInstance(animeworld_info, dict)
-    self.assertIn("content_type", streamtape_info)
-    self.assertIn("total_bytes", streamtape_info)
-    self.assertIn("last_modified", streamtape_info)
-    self.assertIn("server_name", streamtape_info)
-    self.assertIn("server_id", streamtape_info)
-    self.assertIn("url", streamtape_info)
+    with self.subTest('Animeworld_Server Download'):
+      buf = io.BytesIO()
+      opt = []
+      Thread(target=self.stopDownload, args=(opt,)).start()
+      self.assertIsNone(server.download(folder=buf, opt=opt))
+      buf.close()
+
+  def test_Streamtape(self) -> None:
+    servers = [e for e in self.episodio.links if isinstance(e, Streamtape)]
+
+    if len(servers) == 0:
+      self.skipTest('Il server Streamtape non esiste in questo episodio.')
+      return
+    
+    server = servers[0]
+    
+    self.assertEqual(server.Nid, 8)
+    self.assertEqual(server.name, "Streamtape")
+
+    
+    self.assertIsInstance(server.fileLink(), str)    
+
+    info = server.fileInfo()
+    self.assertIsInstance(info, dict)
+    self.assertIn("content_type", info)
+    self.assertIn("total_bytes", info)
+    self.assertIn("last_modified", info)
+    self.assertIn("server_name", info)
+    self.assertIn("server_id", info)
+    self.assertIn("url", info)
+
+    with self.subTest('Streamtape Download'):
+      buf = io.BytesIO()
+      opt = []
+      Thread(target=self.stopDownload, args=(opt,)).start()
+      self.assertIsNone(server.download(folder=buf, opt=opt))
+      buf.close()
 
 if __name__ == '__main__':
   unittest.main(verbosity=2)
