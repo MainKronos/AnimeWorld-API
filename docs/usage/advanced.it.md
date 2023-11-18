@@ -1,6 +1,5 @@
 # Advanced Usage
 
-
 ## Eccezioni
 
 La libreria solleva diverse eccezioni, le principali sono: [`AnimeNotAvailable`](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable), [`Error404`](../../api-reference/exceptions/#animeworld.exceptions.Error404) e [`DeprecatedLibrary`](../../api-reference/exceptions/#animeworld.exceptions.DeprecatedLibrary).<br>Per maggiori informazioni consultare la [documentazione](../../api-reference/exceptions).
@@ -27,7 +26,7 @@ except aw.DeprecatedLibrary as e:
 
 ### Error404
 
-L'eccezione [`Error404`](../../api-reference/exceptions/#animeworld.exceptions.Error404) viene sollevata l'URL passato alla creazione dell'oggetto Anime punta ad una pagina [404](https://www.animeworld.so/404).
+L'eccezione [`Error404`](../../api-reference/exceptions/#animeworld.exceptions.Error404) viene sollevata quando l'URL passato alla creazione dell'oggetto Anime punta ad una pagina [404](https://www.animeworld.so/404).
 
 Visto che questa eccezione viene sollevata solo dalla classe [`Anime`](../../api-reference/developer-interface/#animeworld.Anime), è consigliato gestirla solo se effettivamente si sta istanziando un oggetto di quella classe.
 
@@ -54,7 +53,7 @@ except aw.DeprecatedLibrary as e:
 
 ### AnimeNotAvailable
 
-L'eccezione [`AnimeNotAvailable`](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable) viene sollevata quando la pagina dell'anime esiste ma gli episodi non sono ancora disponibili. Questo accade ad esempio quando inizia una nuova stagione e molti anime stagionali non sono ancora stati tradotti.
+L'eccezione [`AnimeNotAvailable`](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable) viene sollevata quando la pagina dell'anime esiste ma gli episodi non sono ancora disponibili. Questo accade ad esempio quando inizia una nuova stagione.
 
 L'eccezione si verifica soltanto alla chiamata del metodo [`getEpisodes`](../../api-reference/developer-interface/#animeworld.anime.Anime.getEpisodes).
 
@@ -94,7 +93,7 @@ Per scarica un episodio è possibile selezione manualmente il server da cui scar
     Non consiglio di utilizzare questo metodo per scaricare un episodio, è molto piú semplice e sicuro utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), perchè:
 
     1. Viene scelto sempre il server più veloce al momento del download.
-    2. Se si usa un serer non supportato dalla libreria, verrà sollevata l'eccezione [ServerNotSupported](../../api-reference/exceptions/#animeworld.exceptions.ServerNotSupported).
+    2. Se si sceglie un server non supportato, verrà sollevata l'eccezione [ServerNotSupported](../../api-reference/exceptions/#animeworld.exceptions.ServerNotSupported).
 
 ```py linenums="1"
 anime = aw.Anime("...")
@@ -114,7 +113,7 @@ server.download()
 
 ### Server supportati
 
-I server supportati sono querelli indicati di sotto, se vuoi contribuire ad aggiungerne altri puoi dare un occhiata alla sezione [Contributing](../../community/contributing/).
+I server supportati sono indicati di seguito, se vuoi contribuire per aggiungerne altri puoi dare un occhiata alla sezione [Contributing](../../community/contributing/).
 
 --8<-- "static/server.txt"
 
@@ -124,13 +123,22 @@ I server supportati sono querelli indicati di sotto, se vuoi contribuire ad aggi
     Se ci sono dei caratteri non ammessi nel nome del file (`#%&{}<>*?/$!'":@+\``|=`), questi verranno rimossi automaticamente. Per ottenere il nome del file effettivamente scritto su disco è possibile ottenerlo dal ritorno del metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download).
 
 
-Per scaricare un episodio è possibile utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), che scarica il video utilizzando il server piú veloce al momento del download.
+Per ottenere un episodio, consiglio di utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), il quale recupera il video utilizzando il server più veloce disponibile al momento del download.
 
 È possibile impostare il nome del file utilizzando il parametro `title` e la cartella di destinazione utilizzando il parametro `folder`.
 
 ### hook
 
 Il parametro `hook` è più interessante, questo è un riferimento ad una funzione che poi verrà chiamata ogni volta che viene scaricato un chunk del video (~524 Kb). Questo è utile per mostrare a schermo il progresso del download. La funzione deve avere un singolo parametro di tipo `Dict[str, Any]`.
+
+```py
+def my_hook(data):
+	print(data)
+
+episodi = anime.getEpisodes()
+for x in episodi:
+	x.download(hook=my_hook)
+```
 
 Un esempio di un possibile dizionario passato alla funzione hook è il seguente:
 

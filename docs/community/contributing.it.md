@@ -100,6 +100,6 @@ class NuovoServer(Server):
 
 1. Aggiungi la linea `from .NuovoServer import NuovoServer` al file [servers/__init__.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/servers/__init__.py).
 
-1. Modificare il file [episodio.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/episodio.py) aggiungendo il nome del server tra gli import ([Linea 11](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py#L11)) e modificare la funzione [__setServer](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py).
+1. Modificare il file [episodio.py](https://github.com/MainKronos/AnimeWorld-API/tree/master/animeworld/episodio.py) aggiungendo il nome del server tra gli import ([Linea 12](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py#L12)) e modificare la funzione [__setServer](https://github.com/MainKronos/AnimeWorld-API/blob/master/animeworld/episodio.py).
 
 Se tutto funziona correttamente apri una richiesta di [pull](https://github.com/MainKronos/AnimeWorld-API/pulls).

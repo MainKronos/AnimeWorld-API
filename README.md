@@ -10,59 +10,63 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/animeworld)
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/animeworld)
 
+[![Static Badge](https://img.shields.io/badge/lang-english-%239FA8DA)](https://github.com/MainKronos/AnimeWorld-API/blob/master/README.md)
+[![Static Badge](https://img.shields.io/badge/lang-italian-%239FA8DA)](https://github.com/MainKronos/AnimeWorld-API/blob/master/README.it.md)
+
+
 AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.so/) (Italian anime site).
 
-## Installazione
-Questa libreria richiede [Python 3.7](https://www.python.org/) o superiore.
+## Installation
+This library requires [Python 3.7](https://www.python.org/) or later.
 
-È Possibile installarare la libreria tramite pip:
+You can install the library using pip:
 ```shell script
 pip install animeworld
 ```
 
-## Utilizzo
-Per ricercare un anime per nome nel sito di animeWolrd è possibile usare la funzione find().
+## Usage
+To search for an anime by name on the AnimeWorld site, you can use the `find()` function.
 ```python
 import animeworld as aw
 
 res = aw.find("No game no life")
 print(res)
 ```
-La funzione estituirà un dizionario contentente per chiave il nome dell'anime e per valore il link della pagina di animeworld.
+The function will return a dictionary with the anime name as the key and the link to the anime world page as the value.
 ```python
 {'name': 'No Game no Life', 'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1', ...}
 ```
-È Possibile anche scaricare gli episodi di un anime.
+You can also download episodes of an anime.
 ```python
 import animeworld as aw
 
 anime = aw.Anime(link="https://www.animeworld.so/play/danmachi-3.Ydt8-")
-for episodio in anime.getEpisodes():
-    print("Episodio Numero: ", episodio.number)
+for episode in anime.getEpisodes():
+    print("Episode Number: ", episode.number)
         
-    if(episodio.download()):
-        print("scaricato")
+    if(episode.download()):
+        print("Downloaded")
     else:
-        print("errore")
+        print("Error")
 
-    if x.number == '1': break
+    if episode.number == '1': break
 ```
 ```
-Episodio Numero: 1
-scaricato
+Episode Number: 1
+Downloaded
 ```
 
-## Documentazione
+## Documentation
 
-La documentazione completa è disponibile qui: [Documentazione](https://mainkronos.github.io/AnimeWorld-API/)
+The complete documentation is available here: [Documentation](https://mainkronos.github.io/AnimeWorld-API/)
 
-Per una panoramica di tutte le nozioni di base, vai alla sezione [QuickStart](https://mainkronos.github.io/AnimeWorld-API/usage/quickstart)
+For an overview of all the basics, go to the [QuickStart](https://mainkronos.github.io/AnimeWorld-API/usage/quickstart) section.
 
-Per argomenti più avanzati, vedere la sezione [Advanced Usage](https://mainkronos.github.io/AnimeWorld-API/usage/advanced)
+For more advanced topics, see the [Advanced Usage](https://mainkronos.github.io/AnimeWorld-API/usage/advanced) section.
 
-La sezione [API Reference](https://mainkronos.github.io/AnimeWorld-API/api-reference/developer-interface) fornisce un riferimento API completo.
+The [API Reference](https://mainkronos.github.io/AnimeWorld-API/api-reference/developer-interface) section provides a complete API reference.
 
-Se vuoi contribuire al progetto, vai alla sezione [Contributing](https://mainkronos.github.io/AnimeWorld-API/community/contributing)
+If you want to contribute to the project, visit the [Contributing](https://mainkronos.github.io/AnimeWorld-API/community/contributing) section.
 
 ## Star History
 

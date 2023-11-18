@@ -3,29 +3,29 @@ site_description: UNOFFICIAL library for AnimeWorld
 site_url: https://github.com/MainKronos/AnimeWorld-API
 
 theme:
-    name: 'material'
-    language: it
-    palette:
-      - scheme: 'default'
-        media: '(prefers-color-scheme: light)'
-        toggle:
-          icon: 'material/lightbulb'
-          name: "Switch to dark mode"
-      - scheme: 'slate'
-        media: '(prefers-color-scheme: dark)'
-        primary: 'blue'
-        toggle:
-          icon: 'material/lightbulb-outline'
-          name: 'Switch to light mode'
-    icon:
-      repo: fontawesome/brands/github
-    logo: static/img/logo.svg
-    favicon: static/img/logo.svg
-    features:
-    - navigation.sections
-    - search.suggest
-    - content.code.annotate
-    - content.code.copy
+  name: 'material'
+  language: en
+  palette:
+    - scheme: 'default'
+      media: '(prefers-color-scheme: light)'
+      toggle:
+        icon: 'material/lightbulb'
+        name: "Switch to dark mode"
+    - scheme: 'slate'
+      media: '(prefers-color-scheme: dark)'
+      primary: 'blue'
+      toggle:
+        icon: 'material/lightbulb-outline'
+        name: 'Switch to light mode'
+  icon:
+    repo: fontawesome/brands/github
+  logo: static/img/logo.svg
+  favicon: static/img/logo.svg
+  features:
+  - navigation.sections
+  - search.suggest
+  - content.code.annotate
+  - content.code.copy
 
 repo_name: MainKronos/AnimeWorld-API
 repo_url: https://github.com/MainKronos/AnimeWorld-API
@@ -57,12 +57,23 @@ markdown_extensions:
   - pymdownx.superfences
 
 plugins:
+- i18n:
+    docs_structure: suffix
+    fallback_to_default: true
+    languages:
+      - locale: en
+        default: true
+        name: English
+        build: true
+      - locale: it
+        name: Italiano
+        build: true
 - autorefs
 - git-revision-date-localized:
     type: date 
-    locale: it
+    locale: en
 - search:
-    lang: it
+    lang: en
 - mkdocstrings:
     default_handler: python
     handlers:

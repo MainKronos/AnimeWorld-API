@@ -10,12 +10,13 @@ AnimeWorld-API is an UNOFFICIAL library for AnimeWorld (Italian anime site).
 
 ---
 
-Installa la libreria tramite pip: 
+## Installation
+Install the library using pip:
 ```bash
 $ pip install animeworld
 ```
 
-Adesso puoi iniziare a cercare anime:
+Now you can start searching for anime:
 ```python
 >>> import animeworld as aw
 >>> res = aw.find("No game no life")
@@ -23,29 +24,29 @@ Adesso puoi iniziare a cercare anime:
 {'name': 'No Game no Life', 'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1', ...}
 ```
 
-E a scaricare episodi:
+And download episodes:
 ```python
 >>> import animeworld as aw
 >>> anime = aw.Anime(link="https://www.animeworld.so/play/danmachi-3.Ydt8-")
->>> for episodio in anime.getEpisodes():
-...     print("Episodio Numero: ", episodio.number)
-...     if(episodio.download()):
-...         print("Download completato")
+>>> for episode in anime.getEpisodes():
+...     print("Episode Number: ", episode.number)
+...     if(episode.download()):
+...         print("Download completed")
 ```
 
-## Documentazione
+## Documentation
 
-Per una panoramica di tutte le nozioni di base, vai alla sezione [QuickStart](usage/quickstart.md)
+For an overview of all the basics, go to the [QuickStart](usage/quickstart.md) section.
 
-Per argomenti più avanzati, vedere la sezione [Advanced Usage](usage/advanced.md)
+For more advanced topics, see the [Advanced Usage](usage/advanced.md) section.
 
-La sezione [API Reference](api-reference/developer-interface.md) fornisce un riferimento API completo.
+The [API Reference](api-reference/developer-interface.md) section provides a complete API reference.
 
-Se vuoi contribuire al progetto, vai alla sezione [Contributing](community/contributing.md)
+If you want to contribute to the project, visit the [Contributing](community/contributing.md) section.
 
-## Dipendenze
+## Dependencies
 
-- [`httpx`](https://github.com/encode/httpx) - A next generation HTTP client for Python.
+- [`httpx`](https://github.com/encode/httpx) - A next-generation HTTP client for Python.
 
 - [`youtube_dl`](https://github.com/ytdl-org/youtube-dl) - Command-line program to download videos from YouTube.com and other video sites.
 

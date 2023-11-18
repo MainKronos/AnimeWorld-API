@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: 3.x
       - name: Setup dependencies
-        run: pip install --upgrade pip && pip install mkdocs mkdocs-material mkdocstrings mkdocstrings[python] black mkdocs-git-revision-date-localized-plugin
+        run: pip install --upgrade pip && pip install mkdocs mkdocs-material mkdocstrings mkdocstrings[python] black mkdocs-git-revision-date-localized-plugin mkdocs-static-i18n[material]
       - name: Build with MkDocs
         run: |
           mkdocs build -c -d _site
