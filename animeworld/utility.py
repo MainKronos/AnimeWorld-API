@@ -22,7 +22,7 @@ class MySession(httpx.Client):
         """Aggiunge il csrf_token all'headers."""
 
         csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
-        cookie = re.compile(br'document\.cookie\s*?=\s*?"(.+?)=(.+?)"\s*?;')
+        cookie = re.compile(br'document\.cookie\s*?=\s*?"(.+?)=(.+?)(\s*?;\s*?path=.+?)?"\s*?;')
         for _ in range(2): # numero di tentativi
             res = self.get("https://www.animeworld.so", follow_redirects=True)
 
