@@ -129,6 +129,25 @@ class Anime:
         return soupeddata.find("div", { "class" : "desc" }).get_text()
 
     @HealthCheck
+    def getCover(self) -> str:
+        """
+        Ottiene l'url dell'immagine di copertina dell'anime.
+
+        Returns:
+          Url dell'immagine di copertina dell'anime.
+        
+        Raises:
+          DeprecatedLibrary: Cambiamento del sito Animeworld.
+        
+        Example:
+          ```py
+          return str # Url dell'immagine di copertina dell'anime
+          ```
+        """
+        soupeddata = BeautifulSoup(self.html, "html.parser")
+        return soupeddata.find("div", { "id" : "thumbnail-watch" }).find("img")["src"]
+
+    @HealthCheck
     def getInfo(self) -> Dict[str, str]:
         """
         Ottiene le informazioni dell'anime.
