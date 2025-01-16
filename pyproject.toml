@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "animeworld"
+dynamic = ["version"]
+description = "AnimeWorld UNOFFICIAL API"
+dependencies = [
+    "httpx",
+    "httpx[http2]",
+    "youtube_dl",
+    "beautifulsoup4"
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">= 3.8"
+license = {file = "LICENSE"}
+keywords = ["anime", "animeworld", "animeworld-api", "api"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+  "Topic :: Software Development :: Libraries",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License"
+]
+
+[project.urls]
+Homepage = "https://mainkronos.github.io/AnimeWorld-API/"
+Documentation = "https://mainkronos.github.io/AnimeWorld-API/"
+Repository = "https://github.com/MainKronos/AnimeWorld-API.git"
+Issues = "https://github.com/MainKronos/AnimeWorld-API/issues"
