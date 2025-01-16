@@ -23,6 +23,7 @@ theme:
   favicon: static/img/logo.svg
   features:
   - navigation.sections
+  - navigation.tracking
   - search.suggest
   - content.code.annotate
   - content.code.copy
@@ -68,12 +69,15 @@ plugins:
       - locale: it
         name: Italiano
         build: true
-- autorefs
+- autorefs:
+    resolve_closest: true
 - git-revision-date-localized:
     type: date 
     locale: en
 - search:
-    lang: en
+    lang: 
+    - en
+    - it
 - mkdocstrings:
     default_handler: python
     handlers:

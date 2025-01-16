@@ -74,6 +74,10 @@ print("----------------------------------\n")
 print("Plot:", anime.getTrama())
 print("----------------------------------\n")
 
+# Cover
+print("Cover: ", anime.getCover())
+print("----------------------------------\n")
+
 # General information
 info = anime.getInfo()
 print("General Information:\n", "\n".join(
