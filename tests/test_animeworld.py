@@ -90,6 +90,7 @@ class TestAnimeWorld(unittest.TestCase):
     """
     self.assertIsInstance(self.anime.getName(), str)
     self.assertIsInstance(self.anime.getTrama(), str)
+    self.assertIsInstance(self.anime.getCover(), str)
 
     info = self.anime.getInfo()
     self.assertIsInstance(info, dict)

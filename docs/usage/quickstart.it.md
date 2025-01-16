@@ -74,6 +74,10 @@ print("----------------------------------\n")
 print("Trama:", anime.getTrama())
 print("----------------------------------\n")
 
+# La locandina
+print("Cover: ", anime.getCover())
+print("----------------------------------\n")
+
 # Informazioni generali
 info = anime.getInfo()
 print("Informazioni generali:\n", "\n".join(
