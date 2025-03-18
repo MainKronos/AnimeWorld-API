@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import unittest
@@ -6,6 +7,8 @@ from threading import Thread
 
 import animeworld as aw
 from animeworld.servers import AnimeWorld_Server, Streamtape
+
+base_path = os.getenv('BASE_PATH', 'https://www.animeworld.so')
 
 class TestGeneral(unittest.TestCase):
   def test_find(self):
@@ -54,14 +57,14 @@ class TestExceptions(unittest.TestCase):
     Testa il corretto riconoscimento di una pagina 404.
     """
     with self.assertRaises(aw.Error404):
-      aw.Anime("https://www.animeworld.so/play/ttt")
+      aw.Anime(f"{base_path}/play/ttt")
 
   # @unittest.skip("Link da aggiornare con uno non ancora disponibile.")
   def test_AnimeNotAvailable(self) -> None:
     """
     Testa il corretto riconoscimento di un anime non ancora disponibile.
     """
-    res = aw.Anime("https://www.animeworld.so/play/sabikui-bisco-2.6CCbU")
+    res = aw.Anime(f"{base_path}/play/sabikui-bisco-2.6CCbU")
 
     with self.assertRaises(aw.AnimeNotAvailable):
       res.getEpisodes()
@@ -70,7 +73,7 @@ class TestExceptions(unittest.TestCase):
     """
     Testa il corretto riconoscimento di un server non supportato.
     """
-    ep = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
+    ep = random.choice(aw.Anime(f"{base_path}/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
 
     server = [s for s in ep.links if s.Nid == 2][0]
 
@@ -82,7 +85,7 @@ class TestAnimeWorld(unittest.TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     """Inizializza la classe Anime."""
-    cls.anime = aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ")
+    cls.anime = aw.Anime(f"{base_path}/play/fullmetal-alchemist-brotherhood.4vGGQ")
 
   def test_anime(self):
     """
@@ -117,7 +120,7 @@ class TestServer(unittest.TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     """Sceglie un episodio per i test."""
-    cls.episodio = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
+    cls.episodio = random.choice(aw.Anime(f"{base_path}/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
   
   @staticmethod
   def stopDownload(opt:list):

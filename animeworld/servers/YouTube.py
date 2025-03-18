@@ -4,6 +4,8 @@ import re
 from .Server import *
 from ..utility import HealthCheck
 
+base_path = os.getenv('BASE_PATH', 'https://www.animeworld.so')
+
 class YouTube(Server):
 	@HealthCheck
 	def fileLink(self) -> str:
@@ -20,7 +22,7 @@ class YouTube(Server):
         """
 		
 		anime_id = self.link.split("/")[-1]
-		external_link = "https://www.animeworld.so/api/episode/serverPlayerAnimeWorld?id={}".format(anime_id)
+		external_link = f"{base_path}/api/episode/serverPlayerAnimeWorld?id={anime_id}"
 
 		sb_get = SES.get(self.link)
 		sb_get.raise_for_status()

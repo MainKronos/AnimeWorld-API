@@ -1,6 +1,8 @@
 """
 Modulo per delle funzioni di utilità.
 """
+import os
+
 import httpx
 from bs4 import BeautifulSoup
 import inspect
@@ -8,6 +10,8 @@ from typing import *
 import re
 
 from .exceptions import DeprecatedLibrary
+
+base_path = os.getenv('BASE_PATH', 'https://www.animeworld.so')
 
 class MySession(httpx.Client):
     """
@@ -24,7 +28,7 @@ class MySession(httpx.Client):
         csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
         cookie = re.compile(br'document\.cookie\s*?=\s*?"(.+?)=(.+?)(\s*?;\s*?path=.+?)?"\s*?;')
         for _ in range(2): # numero di tentativi
-            res = self.get("https://www.animeworld.so", follow_redirects=True)
+            res = self.get(base_path, follow_redirects=True)
 
             m = cookie.search(res.content)
             if m:
@@ -111,7 +115,7 @@ def find(keyword: str) -> List[Dict]:
       ```
     """
 
-    res = SES.post("https://www.animeworld.so/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
+    res = SES.post(f"{base_path}/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
 
     data = res.json()
     if "error" in data: return []
@@ -137,7 +141,7 @@ def find(keyword: str) -> List[Dict]:
         "categories": elem["categories"],
         "image": elem["image"],
         "durationEpisodes": elem["durationEpisodes"],
-        "link": f"https://www.animeworld.so/play/{elem['link']}.{elem['identifier']}" if elem['link'] is not None or elem['identifier'] is not None else None,
+        "link": f"{base_path}/play/{elem['link']}.{elem['identifier']}" if elem['link'] is not None or elem['identifier'] is not None else None,
         "createdAt": elem["createdAt"],
         "language": elem["language"],
         "year": elem["year"],

@@ -1,6 +1,8 @@
 """
 Modulo contenente la struttura a classe dell'anime.
 """
+import os
+
 import httpx
 from bs4 import BeautifulSoup
 import re
@@ -10,6 +12,8 @@ from typing import *
 from .utility import HealthCheck, SES
 from .exceptions import Error404, AnimeNotAvailable
 from .episodio import Episodio
+
+base_path = os.getenv('BASE_PATH', 'https://www.animeworld.so')
 
 class Anime:
     """
@@ -245,7 +249,7 @@ class Anime:
         a_link = soupeddata.select_one('li.episode > a')
         if a_link is None: raise AnimeNotAvailable(self.getName())
 
-        self.link = "https://www.animeworld.so" + a_link.get('href')
+        self.link = base_path + a_link.get('href')
 
         provLegacy = self.__getServer() # vecchio sistema di cattura server
 
@@ -260,18 +264,18 @@ class Anime:
                 if epID not in raw_eps:
                     raw_eps[epID] = {
                         'number': epNum,
-                        'link': f"https://www.animeworld.so/api/download/{epID}",
+                        'link': f"{base_path}/api/download/{epID}",
                         'legacy': [{
                             "id": int(provID),
                             "name": provLegacy[provID]["name"],
-                            "link": "https://www.animeworld.so" + data.get("href")
+                            "link": base_path + data.get("href")
                         }]
                     }
                 else:
                     raw_eps[epID]['legacy'].append({
                     "id": int(provID),
                     "name": provLegacy[provID]["name"],
-                    "link": "https://www.animeworld.so" + data.get("href")
+                    "link": base_path + data.get("href")
                 })
 
         return [
