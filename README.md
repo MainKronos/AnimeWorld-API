@@ -17,7 +17,7 @@
 AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.ac/) (Italian anime site).
 
 ## Installation
-This library requires [Python 3.7](https://www.python.org/) or later.
+This library requires [Python 3.11](https://www.python.org/) or later.
 
 You can install the library using pip:
 ```shell script
