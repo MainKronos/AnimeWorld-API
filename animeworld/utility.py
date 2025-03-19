@@ -13,10 +13,17 @@ class MySession(httpx.Client):
     """
     Sessione httpx.
     """
-    def __init__(self) -> None:
-        super().__init__(http2=True)
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'})
         self.fixCookie()
+    
+    def build_url(self, url: httpx.URL | str) -> httpx.URL:
+        """
+        Unisce l'url con il base_url.
+        """
+        return self._merge_url(url)
     
     def fixCookie(self):
         """Aggiunge il csrf_token all'headers."""
@@ -24,7 +31,7 @@ class MySession(httpx.Client):
         csrf_token = re.compile(br'<meta.*?id="csrf-token"\s*?content="(.*?)">')
         cookie = re.compile(br'document\.cookie\s*?=\s*?"(.+?)=(.+?)(\s*?;\s*?path=.+?)?"\s*?;')
         for _ in range(2): # numero di tentativi
-            res = self.get("https://www.animeworld.so", follow_redirects=True)
+            res = self.get("/", follow_redirects=True)
 
             m = cookie.search(res.content)
             if m:
@@ -111,7 +118,7 @@ def find(keyword: str) -> List[Dict]:
       ```
     """
 
-    res = SES.post("https://www.animeworld.so/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
+    res = SES.post("/api/search/v2?", params = {"keyword": keyword}, follow_redirects=True)
 
     data = res.json()
     if "error" in data: return []
@@ -126,34 +133,41 @@ def find(keyword: str) -> List[Dict]:
 
     return [
         {
-        "id": elem["id"],
-        "name": elem["name"],
-        "jtitle": elem["jtitle"],
-        "studio": elem["studio"],
-        "release": elem["release"],
-        "episodes": int(elem["episodes"]) if elem["episodes"] is not None else None,
-        "state": elem["state"],
-        "story": elem["story"],
-        "categories": elem["categories"],
-        "image": elem["image"],
-        "durationEpisodes": elem["durationEpisodes"],
-        "link": f"https://www.animeworld.so/play/{elem['link']}.{elem['identifier']}" if elem['link'] is not None or elem['identifier'] is not None else None,
-        "createdAt": elem["createdAt"],
-        "language": elem["language"],
-        "year": elem["year"],
-        "dub": elem["dub"] != "0" if elem["dub"] is not None else None,
-        "season": elem["season"],
-        "totViews": elem["totViews"],
-        "dayViews": elem["dayViews"],
-        "weekViews": elem["weekViews"],
-        "monthViews": elem["monthViews"],
-        "malId": elem["malId"],
-        "anilistId": elem["anilistId"],
-        "mangaworldId": elem["mangaworldId"],
-        "malVote": elem["malVote"],
-        "trailer": elem["trailer"]
-        }for elem in data
+            "id": elem["id"],
+            "name": elem["name"],
+            "jtitle": elem["jtitle"],
+            "studio": elem["studio"],
+            "release": elem["release"],
+            "episodes": int(elem["episodes"]) if elem["episodes"] is not None else None,
+            "state": elem["state"],
+            "story": elem["story"],
+            "categories": elem["categories"],
+            "image": elem["image"],
+            "durationEpisodes": elem["durationEpisodes"],
+            "link": str(SES.build_url(f"/play/{elem['link']}.{elem['identifier']}")) if elem['link'] is not None or elem['identifier'] is not None else None,
+            "createdAt": elem["createdAt"],
+            "language": elem["language"],
+            "year": elem["year"],
+            "dub": elem["dub"] != "0" if elem["dub"] is not None else None,
+            "season": elem["season"],
+            "totViews": elem["totViews"],
+            "dayViews": elem["dayViews"],
+            "weekViews": elem["weekViews"],
+            "monthViews": elem["monthViews"],
+            "malId": elem["malId"],
+            "anilistId": elem["anilistId"],
+            "mangaworldId": elem["mangaworldId"],
+            "malVote": elem["malVote"],
+            "trailer": elem["trailer"]
+        } for elem in data
     ]
 
-SES = MySession() # sessione contenente Cookie e headers
-"Sessione httpx."
+SES = MySession(http2=True, base_url="https://www.animeworld.ac/") # sessione contenente Cookie e headers
+"""Sessione httpx.
+
+Example:
+```py
+# Per cabiare il base_url:
+SES.base_url = "https://www.animeworld.ac"
+```
+"""

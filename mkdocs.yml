@@ -91,7 +91,7 @@ plugins:
           show_root_full_path: false
           # show_category_heading: false
           # show_object_full_path: false
-
+          allow_inspection: true
           group_by_category: true
 
           show_root_toc_entry: false

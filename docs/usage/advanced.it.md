@@ -2,18 +2,18 @@
 
 ## Eccezioni
 
-La libreria solleva diverse eccezioni, le principali sono: [`AnimeNotAvailable`](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable), [`Error404`](../../api-reference/exceptions/#animeworld.exceptions.Error404) e [`DeprecatedLibrary`](../../api-reference/exceptions/#animeworld.exceptions.DeprecatedLibrary).<br>Per maggiori informazioni consultare la [documentazione](../../api-reference/exceptions).
+La libreria solleva diverse eccezioni, le principali sono: [`AnimeNotAvailable`][animeworld.exceptions.AnimeNotAvailable], [`Error404`][animeworld.exceptions.Error404] e [`DeprecatedLibrary`][animeworld.exceptions.DeprecatedLibrary].<br>Per maggiori informazioni consultare la [documentazione](../api-reference/exceptions.md).
 
 ### DeprecatedLibrary
 
-L'eccezione [`DeprecatedLibrary`](../../api-reference/exceptions/#animeworld.exceptions.DeprecatedLibrary) viene sollevata quando viene rivelato un mutamento del sito di [AnimeWorld](https://www.animeworld.so/) non piú supportato dalla libreria.
+L'eccezione [`DeprecatedLibrary`][animeworld.exceptions.DeprecatedLibrary] viene sollevata quando viene rivelato un mutamento del sito di [AnimeWorld](https://www.animeworld.ac/) non piú supportato dalla libreria.
 
 Questa eccezione può essere sollevata praticamente da qualsiasi metodo della libreria, quindi è consigliato gestirla in modo globale.
 
 ```py linenums="1" hl_lines="9"
 try:
     res = aw.find("...")
-    anime = aw.Anime("https://www.animeworld.so/play/...")
+    anime = aw.Anime("/play/...")
     episodi = anime.getEpisodes()
 
     for x in episodi:
@@ -26,16 +26,16 @@ except aw.DeprecatedLibrary as e:
 
 ### Error404
 
-L'eccezione [`Error404`](../../api-reference/exceptions/#animeworld.exceptions.Error404) viene sollevata quando l'URL passato alla creazione dell'oggetto Anime punta ad una pagina [404](https://www.animeworld.so/404).
+L'eccezione [`Error404`][animeworld.exceptions.Error404] viene sollevata quando l'URL passato alla creazione dell'oggetto Anime punta ad una pagina [404](https://www.animeworld.ac/404).
 
-Visto che questa eccezione viene sollevata solo dalla classe [`Anime`](../../api-reference/developer-interface/#animeworld.Anime), è consigliato gestirla solo se effettivamente si sta istanziando un oggetto di quella classe.
+Visto che questa eccezione viene sollevata solo dalla classe [`Anime`][animeworld.Anime], è consigliato gestirla solo se effettivamente si sta istanziando un oggetto di quella classe.
 
 ```py linenums="1" hl_lines="7"
 try:
     res = aw.find("...")
 
     try:
-        anime = aw.Anime("https://www.animeworld.so/play/...")
+        anime = aw.Anime("/play/...")
 
     except aw.Error404 as e:
         # Gestione dell'eccezione
@@ -53,16 +53,16 @@ except aw.DeprecatedLibrary as e:
 
 ### AnimeNotAvailable
 
-L'eccezione [`AnimeNotAvailable`](../../api-reference/exceptions/#animeworld.exceptions.AnimeNotAvailable) viene sollevata quando la pagina dell'anime esiste ma gli episodi non sono ancora disponibili. Questo accade ad esempio quando inizia una nuova stagione.
+L'eccezione [`AnimeNotAvailable`][animeworld.exceptions.AnimeNotAvailable] viene sollevata quando la pagina dell'anime esiste ma gli episodi non sono ancora disponibili. Questo accade ad esempio quando inizia una nuova stagione.
 
-L'eccezione si verifica soltanto alla chiamata del metodo [`getEpisodes`](../../api-reference/developer-interface/#animeworld.anime.Anime.getEpisodes).
+L'eccezione si verifica soltanto alla chiamata del metodo [`getEpisodes`][animeworld.Anime.getEpisodes].
 
 ```py linenums="1" hl_lines="15"
 try:
     res = aw.find("...")
 
     try:
-        anime = aw.Anime("https://www.animeworld.so/play/...")
+        anime = aw.Anime("/play/...")
 
     except aw.Error404 as e:
         # Gestione dell'eccezione
@@ -87,13 +87,13 @@ except aw.DeprecatedLibrary as e:
 
 ## Server
    
-Per scarica un episodio è possibile selezione manualmente il server da cui scaricare il video. Per farlo è ottenere prima la lista dei server utilizzando l'attributo [`Episodio.links`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.links) e poi sceglierne uno tra quelli supportati.
+Per scarica un episodio è possibile selezione manualmente il server da cui scaricare il video. Per farlo è ottenere prima la lista dei server utilizzando l'attributo [`Episodio.links`][animeworld.Episodio.links] e poi sceglierne uno tra quelli supportati.
 
 !!! Warning
-    Non consiglio di utilizzare questo metodo per scaricare un episodio, è molto piú semplice e sicuro utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), perchè:
+    Non consiglio di utilizzare questo metodo per scaricare un episodio, è molto piú semplice e sicuro utilizzare il metodo [`Episodio.download`][animeworld.Episodio.download], perchè:
 
     1. Viene scelto sempre il server più veloce al momento del download.
-    2. Se si sceglie un server non supportato, verrà sollevata l'eccezione [ServerNotSupported](../../api-reference/exceptions/#animeworld.exceptions.ServerNotSupported).
+    2. Se si sceglie un server non supportato, verrà sollevata l'eccezione [ServerNotSupported][animeworld.exceptions.ServerNotSupported].
 
 ```py linenums="1"
 anime = aw.Anime("...")
@@ -113,17 +113,17 @@ server.download()
 
 ### Server supportati
 
-I server supportati sono indicati di seguito, se vuoi contribuire per aggiungerne altri puoi dare un occhiata alla sezione [Contributing](../../community/contributing/).
+I server supportati sono indicati di seguito, se vuoi contribuire per aggiungerne altri puoi dare un occhiata alla sezione [Contributing](../community/contributing.md).
 
 --8<-- "static/server.txt"
 
 ## Download
 
 !!! Warning inline end
-    Se ci sono dei caratteri non ammessi nel nome del file (`#%&{}<>*?/$!'":@+\``|=`), questi verranno rimossi automaticamente. Per ottenere il nome del file effettivamente scritto su disco è possibile ottenerlo dal ritorno del metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download).
+    Se ci sono dei caratteri non ammessi nel nome del file (`#%&{}<>*?/$!'":@+\``|=`), questi verranno rimossi automaticamente. Per ottenere il nome del file effettivamente scritto su disco è possibile ottenerlo dal ritorno del metodo [`Episodio.download`][animeworld.Episodio.download].
 
 
-Per ottenere un episodio, consiglio di utilizzare il metodo [`Episodio.download`](../../api-reference/developer-interface/#animeworld.episodio.Episodio.download), il quale recupera il video utilizzando il server più veloce disponibile al momento del download.
+Per ottenere un episodio, consiglio di utilizzare il metodo [`Episodio.download`][animeworld.Episodio.download], il quale recupera il video utilizzando il server più veloce disponibile al momento del download.
 
 È possibile impostare il nome del file utilizzando il parametro `title` e la cartella di destinazione utilizzando il parametro `folder`.
 

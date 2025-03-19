@@ -27,8 +27,8 @@ class Anime:
           DeprecatedLibrary: Cambiamento del sito Animeworld.
           Error404: È una pagina 404.
         """
-        
-        self.link:str = link
+
+        self.link:str = httpx.URL(link).path
         self.html:bytes = self.__getHTML().content
         self.__check404()
 
@@ -245,7 +245,7 @@ class Anime:
         a_link = soupeddata.select_one('li.episode > a')
         if a_link is None: raise AnimeNotAvailable(self.getName())
 
-        self.link = "https://www.animeworld.so" + a_link.get('href')
+        self.link = str(SES.build_url(a_link.get('href')))
 
         provLegacy = self.__getServer() # vecchio sistema di cattura server
 
@@ -260,18 +260,18 @@ class Anime:
                 if epID not in raw_eps:
                     raw_eps[epID] = {
                         'number': epNum,
-                        'link': f"https://www.animeworld.so/api/download/{epID}",
+                        'link': str(SES.build_url(f"/api/download/{epID}")),
                         'legacy': [{
                             "id": int(provID),
                             "name": provLegacy[provID]["name"],
-                            "link": "https://www.animeworld.so" + data.get("href")
+                            "link": str(SES.build_url(data.get("href")))
                         }]
                     }
                 else:
                     raw_eps[epID]['legacy'].append({
                     "id": int(provID),
                     "name": provLegacy[provID]["name"],
-                    "link": "https://www.animeworld.so" + data.get("href")
+                    "link": str(SES.build_url(data.get("href")))
                 })
 
         return [

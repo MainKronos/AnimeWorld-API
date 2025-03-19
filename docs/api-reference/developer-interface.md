@@ -5,6 +5,10 @@ search:
 
 # Developer Interface
 
+## Globals
+
+### ::: animeworld.SES
+
 ## Funzioni
 
 ### ::: animeworld.find

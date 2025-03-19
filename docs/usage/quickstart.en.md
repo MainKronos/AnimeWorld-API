@@ -6,11 +6,21 @@ First, let's import the library:
 import animeworld as aw
 ```
 
+## Session (Optional)
+
+It may be necessary to change the `base_url` of all links if the AnimeWorld site changes from `https://www.animeworld.ac` to something else.
+
+To do this, you need to modify the session's `base_url` [(SES)][animeworld.SES]:
+
+```python linenums="2"
+aw.SES.base_url = "https://www.animeworld.ac"
+```
+
 ## Find
 
 Now let's try searching for an anime:
 
-```python linenums="2"
+```python linenums="3"
 res = aw.find("Sword Art Online")
 print(res)
 ```
@@ -23,14 +33,14 @@ print(res)
             "name": "Sword Art Online",
             "jtitle": "Sword Art Online",
             "studio": "A-1 Pictures",
-            "release": "05 Luglio 2014",
+            "release": "July 5, 2014",
             "episodes": 25,
             "state": "1",
-            "story": 'Kazuto "Kirito" Kirigaya, un genio della programmazione, entra in una realtà  virtuale interattiva con pluralità  di giocatori (una realtà  "massively multi-player online" o "MMO") denominata "Sword Art Online". Il problema sta nel fatto che, una volta entrati, se ne può uscire solo vincitori, completando il gioco, perché il game over equivale a morte certa del giocatore.',
+            "story": 'Kazuto "Kirito" Kirigaya, a programming genius, enters an interactive virtual reality with multiple players (a "massively multiplayer online" or "MMO") called "Sword Art Online." The problem is that once inside, players can only leave by winning the game—because "game over" means certain death.',
             "categories": [...],
-            "image": "https://img.animeworld.so/locandine/36343l.jpg",
+            "image": "https://img.animeworld.ac/locandine/36343l.jpg",
             "durationEpisodes": "23",
-            "link": "https://www.animeworld.so/play/sword-art-online.N0onT",
+            "link": "https://www.animeworld.ac/play/sword-art-online.N0onT",
             "createdAt": "2020-08-02T15:42:44.000Z",
             "language": "jp",
             "year": "2012",
@@ -50,31 +60,39 @@ print(res)
     ]
     ```
 
-The [find](../../api-reference/developer-interface/#animeworld.find) function returns a list of dictionaries, one for each found anime. Each dictionary contains many details, including the name, episode count, release date, link, etc.
+The [find][animeworld.find] function returns a list of dictionaries, one for each anime found. Each dictionary contains a lot of information, including the name, number of episodes, release date, link, etc.
 
 ## Anime
 
-The [Anime](../../api-reference/developer-interface/#animeworld.Anime) class is the core object of this library. To instantiate it, you need to pass the anime link, obtained directly from the [AnimeWorld](https://www.animeworld.so/) site or from the [find](../../api-reference/developer-interface/#animeworld.find) function seen earlier.
+The [Anime][animeworld.Anime] class is the core object of this library. To instantiate it, you need to pass the anime's link, which can be obtained directly from the [AnimeWorld](https://www.animeworld.ac/) website or from the previously mentioned [find][animeworld.find] function.
 
-```python linenums="4"
-anime = aw.Anime("https://www.animeworld.so/play/sword-art-online.N0onT")
+```py linenums="5"
+# https://www.animeworld.ac/play/sword-art-online.N0onT
+anime = aw.Anime("/play/sword-art-online.N0onT")
 ```
 
 !!! warning 
-    If the passed link points to a [404](https://www.animeworld.so/404) page, the [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404) exception will be raised.
+    You can pass the full link to the `Anime` class, like this:
+    ```py
+    anime = aw.Anime("https://www.animeworld.ac/play/sword-art-online.N0onT")
+    ```
+    However, the `base_url` (`https://www.animeworld.ac`) will be replaced with the one defined in the Session [(SES)][animeworld.SES].
 
-With this class, you can obtain information about the anime:
+!!! warning 
+    If the provided link points to a [404](https://www.animeworld.ac/404) page, the exception [Error404][animeworld.exceptions.Error404] will be raised.
 
-```python linenums="5"
+With this class, you can retrieve information about the anime:
+
+```py linenums="7"
 # Title
 print("Title:", anime.getName())
 print("----------------------------------\n")
 
-# Plot
-print("Plot:", anime.getTrama())
+# Synopsis
+print("Synopsis:", anime.getTrama())
 print("----------------------------------\n")
 
-# Cover
+# Cover image
 print("Cover: ", anime.getCover())
 print("----------------------------------\n")
 
@@ -92,38 +110,38 @@ print("----------------------------------\n")
     Title: Sword Art Online
     ----------------------------------
 
-    Plot: Kazuto "Kirito" Kirigaya, un genio della programmazione, entra in una realtà  virtuale interattiva con pluralità  di giocatori (una realtà  "massively multi-player online" o "MMO") denominata "Sword Art Online". Il problema sta nel fatto che, una volta entrati, se ne può uscire solo vincitori, completando il gioco, perché il game over equivale a morte certa del giocatore.
+    Synopsis: Kazuto "Kirito" Kirigaya, a programming genius, enters an interactive virtual reality with multiple players (a "massively multiplayer online" or "MMO") called "Sword Art Online." The problem is that once inside, players can only leave by winning the game—because "game over" means certain death.
     ----------------------------------
 
     General Information:
     Category: Anime
-    Audio: Giapponese
-    Release Date: 08 Luglio 2012
-    Season: Estate 2012
+    Audio: Japanese
+    Release Date: July 8, 2012
+    Season: Summer 2012
     Studio: A-1 Pictures
-    Genre: ['Avventura', 'Azione', 'Fantasy', 'Gioco', 'Romantico', 'Sentimentale']
-    Rating: 8.36 / 10
+    Genre: ['Adventure', 'Action', 'Fantasy', 'Game', 'Romance', 'Drama']
+    Score: 8.36 / 10
     Duration: 23 min/ep
     Episodes: 25
-    Status: Finito
-    Views: 461.733
+    Status: Completed
+    Views: 461,733
     ----------------------------------
     ```
 
-But most importantly, download the episodes:
+Most importantly, you can download the episodes:
 
 !!! Quote inline end "" 
 
     !!! Info 
-        If no argument is passed to the `getEpisodes()` method, **ALL** episodes of the anime will be obtained.
+        If no argument is passed to the `getEpisodes()` method, **ALL** episodes of the anime will be retrieved.
 
     !!! Warning
-        `ep.number` is an attribute of type `str`, more information [here](../../api-reference/developer-interface/#animeworld.Episodio).
+        `ep.number` is a `str` attribute. More information [here][animeworld.Episodio].
 
 
 
-```python linenums="19"
-# Obtain a list of episodes
+```py linenums="20"
+# Get a list of episodes
 # that interest me
 episodes = anime.getEpisodes([1, 2, 4])
 

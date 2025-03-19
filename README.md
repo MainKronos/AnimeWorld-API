@@ -14,7 +14,7 @@
 [![Static Badge](https://img.shields.io/badge/lang-italian-%239FA8DA)](https://github.com/MainKronos/AnimeWorld-API/blob/master/README.it.md)
 
 
-AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.so/) (Italian anime site).
+AnimeWorld-API is an unofficial library for [AnimeWorld](https://www.animeworld.ac/) (Italian anime site).
 
 ## Installation
 This library requires [Python 3.7](https://www.python.org/) or later.
@@ -34,13 +34,13 @@ print(res)
 ```
 The function will return a dictionary with the anime name as the key and the link to the anime world page as the value.
 ```python
-{'name': 'No Game no Life', 'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1', ...}
+{'name': 'No Game no Life', 'link': 'https://www.animeworld.ac/play/no-game-no-life.IJUH1E', ...}
 ```
 You can also download episodes of an anime.
 ```python
 import animeworld as aw
 
-anime = aw.Anime(link="https://www.animeworld.so/play/danmachi-3.Ydt8-")
+anime = aw.Anime(link="https://www.animeworld.ac/play/danmachi-3.Ydt8-")
 for episode in anime.getEpisodes():
     print("Episode Number: ", episode.number)
         

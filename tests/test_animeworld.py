@@ -8,6 +8,13 @@ import animeworld as aw
 from animeworld.servers import AnimeWorld_Server, Streamtape
 
 class TestGeneral(unittest.TestCase):
+  @classmethod
+  def setUpClass(cls) -> None:
+    """Inizializza la classe."""
+
+    # Correggo il base url
+    aw.SES.base_url = "https://www.animeworld.ac"
+
   def test_find(self):
     """
     Testa la funzione find.
@@ -54,23 +61,24 @@ class TestExceptions(unittest.TestCase):
     Testa il corretto riconoscimento di una pagina 404.
     """
     with self.assertRaises(aw.Error404):
-      aw.Anime("https://www.animeworld.so/play/ttt")
+      aw.Anime("/play/ttt")
 
   # @unittest.skip("Link da aggiornare con uno non ancora disponibile.")
   def test_AnimeNotAvailable(self) -> None:
     """
     Testa il corretto riconoscimento di un anime non ancora disponibile.
     """
-    res = aw.Anime("https://www.animeworld.so/play/sabikui-bisco-2.6CCbU")
+    res = aw.Anime("/play/sabikui-bisco-2.6CCbU")
 
     with self.assertRaises(aw.AnimeNotAvailable):
       res.getEpisodes()
   
+  @unittest.skip("Link da aggiornare con uno che abbia un server non supportato.")
   def test_ServerNotSupported(self) -> None:
     """
     Testa il corretto riconoscimento di un server non supportato.
     """
-    ep = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
+    ep = random.choice(aw.Anime("/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
 
     server = [s for s in ep.links if s.Nid == 2][0]
 
@@ -82,7 +90,12 @@ class TestAnimeWorld(unittest.TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     """Inizializza la classe Anime."""
-    cls.anime = aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ")
+
+    # Correggo il base url
+    aw.SES.base_url = "https://www.animeworld.ac"
+
+    # Inizializzo l'anime
+    cls.anime = aw.Anime("/play/fullmetal-alchemist-brotherhood.4vGGQ")
 
   def test_anime(self):
     """
@@ -117,7 +130,12 @@ class TestServer(unittest.TestCase):
   @classmethod
   def setUpClass(cls) -> None:
     """Sceglie un episodio per i test."""
-    cls.episodio = random.choice(aw.Anime("https://www.animeworld.so/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
+
+    # Correggo il base url
+    aw.SES.base_url = "https://www.animeworld.ac"
+
+    # Inizializzo l'episodio
+    cls.episodio = random.choice(aw.Anime("/play/fullmetal-alchemist-brotherhood.4vGGQ").getEpisodes())
   
   @staticmethod
   def stopDownload(opt:list):

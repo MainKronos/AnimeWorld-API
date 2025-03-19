@@ -20,13 +20,14 @@ Adesso puoi iniziare a cercare anime:
 >>> import animeworld as aw
 >>> res = aw.find("No game no life")
 >>> res
-{'name': 'No Game no Life', 'link': 'https://www.animeworld.so/play/no-game-no-life.IJUH1', ...}
+{'name': 'No Game no Life', 'link': 'https://www.animeworld.ac/play/no-game-no-life.IJUH1E', ...}
 ```
 
 E a scaricare episodi:
 ```python
 >>> import animeworld as aw
->>> anime = aw.Anime(link="https://www.animeworld.so/play/danmachi-3.Ydt8-")
+>>> # https://www.animeworld.ac/play/danmachi-3.Ydt8-
+>>> anime = aw.Anime(link="/play/danmachi-3.Ydt8-")
 >>> for episodio in anime.getEpisodes():
 ...     print("Episodio Numero: ", episodio.number)
 ...     if(episodio.download()):

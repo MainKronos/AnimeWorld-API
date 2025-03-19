@@ -22,7 +22,10 @@ def my_hook(d):
 
 
 try:
-	anime = aw.Anime(link="https://www.animeworld.so/play/tokyo-revengers-seiya-kessen-hen.tzgly")
+	# Imposto il base_url per la sessione
+	aw.SES.base_url = "https://www.animeworld.ac"
+
+	anime = aw.Anime(link="/play/tokyo-revengers-seiya-kessen-hen.tzgly")
 	
 	print("Titolo:", anime.getName()) # Titolo dell'anime
 

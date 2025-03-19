@@ -6,11 +6,21 @@ Per prima cosa importiamo la libreria:
 import animeworld as aw
 ```
 
+## Sessione (Opzionale)
+
+Potrebbe essere necessario cambiare il base_url di tutti i link se il sito di animeworld cambia da `https://www.animeworld.ac` a qualcos'altro.
+
+Per fare ciò è necessario cambiare il base_url della sessione [(SES)][animeworld.SES]
+
+```python linenums="2"
+aw.SES.base_url = "https://www.animeworld.ac"
+```
+
 ## Find
 
 Adesso proviamo a cercare un anime:
 
-```python linenums="2"
+```python linenums="3"
 res = aw.find("Sword Art Online")
 print(res)
 ```
@@ -28,9 +38,9 @@ print(res)
             "state": "1",
             "story": 'Kazuto "Kirito" Kirigaya, un genio della programmazione, entra in una realtà  virtuale interattiva con pluralità  di giocatori (una realtà  "massively multi-player online" o "MMO") denominata "Sword Art Online". Il problema sta nel fatto che, una volta entrati, se ne può uscire solo vincitori, completando il gioco, perché il game over equivale a morte certa del giocatore.',
             "categories": [...],
-            "image": "https://img.animeworld.so/locandine/36343l.jpg",
+            "image": "https://img.animeworld.ac/locandine/36343l.jpg",
             "durationEpisodes": "23",
-            "link": "https://www.animeworld.so/play/sword-art-online.N0onT",
+            "link": "https://www.animeworld.ac/play/sword-art-online.N0onT",
             "createdAt": "2020-08-02T15:42:44.000Z",
             "language": "jp",
             "year": "2012",
@@ -50,22 +60,30 @@ print(res)
     ]
     ```
 
-La funzione [find](../../api-reference/developer-interface/#animeworld.find) restituisce una lista di dizionari, uno per ogni anime trovato. Ogni dizionario contiene molte informazioni, tra cui: il nome, il numero di episodi, la data di uscita, il link, ecc. 
+La funzione [find][animeworld.find] restituisce una lista di dizionari, uno per ogni anime trovato. Ogni dizionario contiene molte informazioni, tra cui: il nome, il numero di episodi, la data di uscita, il link, ecc. 
 
 ## Anime
 
-La classe [Anime](../../api-reference/developer-interface/#animeworld.Anime) è l'oggetto che stà alla base di questa libreria. Per istanziarla è necessario passare il link dell'anime, ottenuto direttamente dal sito di [AnimeWorld](https://www.animeworld.so/) o dalla funzione [find](../../api-reference/developer-interface/#animeworld.find) vista prima.
+La classe [Anime][animeworld.Anime] è l'oggetto che stà alla base di questa libreria. Per istanziarla è necessario passare il link dell'anime, ottenuto direttamente dal sito di [AnimeWorld](https://www.animeworld.ac/) o dalla funzione [find][animeworld.find] vista prima.
 
-```py linenums="4"
-anime = aw.Anime("https://www.animeworld.so/play/sword-art-online.N0onT")
+```py linenums="5"
+# https://www.animeworld.ac/play/sword-art-online.N0onT
+anime = aw.Anime("/play/sword-art-online.N0onT")
 ```
 
 !!! warning 
-    Se il link passato punta ad una pagina [404](https://www.animeworld.so/404) verrannà sollevata l'eccezione [Error404](../../api-reference/exceptions/#animeworld.exceptions.Error404).
+    È possibile passare il link completo alla classe Anime come ad esempio:
+    ```py
+    anime = aw.Anime("https://www.animeworld.ac/play/sword-art-online.N0onT")
+    ```
+    Ma il base_url (https://www.animeworld.ac) verrà rimpiazzato con quello definito nella Sessione [(SES)][animeworld.SES]. 
+
+!!! warning 
+    Se il link passato punta ad una pagina [404](https://www.animeworld.ac/404) verrannà sollevata l'eccezione [Error404][animeworld.exceptions.Error404].
 
 Con questa classe è possibile ottenere informazioni sull'anime: 
 
-```py linenums="5"
+```py linenums="7"
 # Il titolo
 print("Titolo:", anime.getName())
 print("----------------------------------\n")
@@ -118,11 +136,11 @@ Ma soprattutto scaricare gli episodi:
         Se al metodo `getEpisodes()` non viene passato nessun argomento, verranno ottenuti **TUTTI** gli episodi dell'anime.
 
     !!! Warning
-        `ep.number` è un attributo di tipo `str`, maggiori informazioni [qui](../../api-reference/developer-interface/#animeworld.Episodio).
+        `ep.number` è un attributo di tipo `str`, maggiori informazioni [qui][animeworld.Episodio].
 
 
 
-```py linenums="19"
+```py linenums="20"
 # Ottengo una lista di Episodi
 # che mi interessano
 episodi = anime.getEpisodes([1, 2, 4])
