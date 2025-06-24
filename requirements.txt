@@ -2,3 +2,4 @@ httpx
 httpx[http2]
 youtube_dl
 beautifulsoup4
+certifi==2025.1.31
