@@ -1,5 +1,5 @@
 import animeworld as aw
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def my_hook(d):
@@ -11,8 +11,8 @@ def my_hook(d):
 
 		width = 70 # grandezza progressbar
 
-		d['elapsed'] = datetime.utcfromtimestamp(d['elapsed'])
-		d['eta'] = datetime.utcfromtimestamp(d['eta'])
+		d['elapsed'] = datetime.fromtimestamp(d['elapsed'], timezone.utc)
+		d['eta'] = datetime.fromtimestamp(d['eta'], timezone.utc)
 		d['bar'] = '#'*int(width*d['percentage']) + ' '*(width-int(width*d['percentage']))
 
 		print(out.format(**d))
