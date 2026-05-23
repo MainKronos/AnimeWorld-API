@@ -19,10 +19,7 @@ class AnimeWorld_Server(Server):
           ```
         """
 
-        episode_id = self.link.split('/')[-1]
-        res = SES.get(f"api/episode/info", params={"id": episode_id, "alt": "0"})
-        res.raise_for_status()
-        return res.json()['grabber']
+        return self.link.replace('download-file.php?id=', '')
 
     def fileInfo(self) -> Dict[str,str]:
         """
