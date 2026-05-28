@@ -3,6 +3,7 @@ import unittest
 import unittest
 import random, io, time
 from threading import Thread
+from typing import Iterable
 
 import animeworld as aw
 from animeworld.servers import AnimeWorld_Server
@@ -124,7 +125,7 @@ class TestAnimeWorld(unittest.TestCase):
 
     self.assertIsInstance(ep, aw.Episodio)
     self.assertIsInstance(ep.number, str)
-    self.assertIsInstance(ep.links, list)
+    self.assertIsInstance(ep.links, Iterable)
 
 class TestServer(unittest.TestCase):
   @classmethod
@@ -144,13 +145,11 @@ class TestServer(unittest.TestCase):
   
   def test_AnimeWorld_Server(self) -> None:
 
-    servers = [e for e in self.episodio.links if isinstance(e, AnimeWorld_Server)]
+    server = next(filter(lambda s: isinstance(s, AnimeWorld_Server), self.episodio.links), None)
 
-    if len(servers) == 0:
+    if not server:
       self.skipTest('Il server AnimeWorld_Server non esiste in questo episodio.')
       return
-    
-    server = servers[0]
 
     self.assertEqual(server.Nid, 9)
     self.assertEqual(server.name, "AnimeWorld Server")
