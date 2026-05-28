@@ -1,5 +1,5 @@
 ||Server||
 |:---|:---|:---|
 |✔️ AnimeWorld_Server|❌ StreamHide|❌ Doodstream|
-|✔️ Streamtape|❌ FileMoon|❌ StreamSB|
-|✔️ YouTube|❌ Streamtape|❌ Streamlare|
+|❌ Streamtape|❌ FileMoon|❌ StreamSB|
+|❌ YouTube|❌ Streamlare| |

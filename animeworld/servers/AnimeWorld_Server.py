@@ -19,7 +19,7 @@ class AnimeWorld_Server(Server):
           ```
         """
 
-        return self.link.replace('download-file.php?id=', '')
+        return self.link
 
     def fileInfo(self) -> Dict[str,str]:
         """

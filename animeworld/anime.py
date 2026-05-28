@@ -78,7 +78,7 @@ class Anime:
 
     # Private
     @HealthCheck
-    def __getServer(self) -> Dict[int, Dict[str, str]]:
+    def __getServer(self) -> List[Dict[str, str]]:
         """
         Ottiene tutti i server in cui sono hostati gli episodi.
 
@@ -88,10 +88,11 @@ class Anime:
 
         Example:
           ```
-          return {
-            int: { # ID del server
+          return [
+            {
                 name: str # Nome del server
-            },
+                id: str # ID del server
+            ],
             ...
           }
           ```
@@ -102,12 +103,13 @@ class Anime:
         if block == None: raise AnimeNotAvailable(self.getName())
 
         providers = block.find_all("span", { "class" : "server-tab" })
-        return {
-            int(x["data-name"]): {
-                "name": x.get_text()
+        return [
+            {
+                "name": x.get_text(),
+                "id": x["data-name"]
             } 
             for x in providers
-        }
+        ]
 
     @HealthCheck
     def getTrama(self) -> str:
@@ -247,35 +249,39 @@ class Anime:
 
         self.link = str(SES.build_url(a_link.get('href')))
 
-        provLegacy = self.__getServer() # vecchio sistema di cattura server
+        server_list = self.__getServer()
 
         raw_eps = {}
-        for provID in provLegacy:
-            prov_soup = soupeddata.select_one(f"div[class*='server'][data-name='{provID}']")
+        for server_info in server_list:
+            server_id = int(server_info['id'])
+            server_name = server_info['name']
 
-            for data in prov_soup.select('li.episode > a'):
-                epNum = data.get('data-episode-num')
-                epID = data.get('data-episode-id')
+            server_soup = soupeddata.select_one(f"div[class*='server'][data-name='{server_id}']")
 
-                if epID not in raw_eps:
-                    raw_eps[epID] = {
-                        'number': epNum,
-                        'link': str(SES.build_url(f"/api/download/{epID}")),
-                        'legacy': [{
-                            "id": int(provID),
-                            "name": provLegacy[provID]["name"],
-                            "link": str(SES.build_url(data.get("href")))
-                        }]
+            for data in server_soup.select('li.episode > a'):
+                ep_number = data.get('data-episode-num')
+                ep_id = data.get('data-episode-id')
+                data_id = data.get('data-id')
+                ep_href = SES.build_url(data.get('href'))
+
+                # Salto gli episodi che non sono nella lista di filtraggio (se presente)
+                if nums and ep_number not in nums: continue
+
+                if ep_id not in raw_eps:
+                    raw_eps[ep_id] = {
+                        'number': ep_number,
+                        'id': ep_id,
+                        'data': []
                     }
-                else:
-                    raw_eps[epID]['legacy'].append({
-                    "id": int(provID),
-                    "name": provLegacy[provID]["name"],
-                    "link": str(SES.build_url(data.get("href")))
+                
+                raw_eps[ep_id]['data'].append({
+                    'id': data_id,
+                    'link': ep_href,
+                    'serverId': server_id,
+                    'serverName': server_name
                 })
 
         return [
-            Episodio(x['number'], x['link'], x['legacy']) 
+            Episodio(x['number'], x['id'], x['data']) 
             for x in list(raw_eps.values())
-            if not nums or x['number'] in nums
         ]

@@ -5,7 +5,7 @@ import random, io, time
 from threading import Thread
 
 import animeworld as aw
-from animeworld.servers import AnimeWorld_Server, Streamtape
+from animeworld.servers import AnimeWorld_Server
 
 class TestGeneral(unittest.TestCase):
   @classmethod
@@ -166,37 +166,6 @@ class TestServer(unittest.TestCase):
     self.assertIn("url", info)
 
     with self.subTest('Animeworld_Server Download'):
-      buf = io.BytesIO()
-      opt = []
-      Thread(target=self.stopDownload, args=(opt,)).start()
-      self.assertIsNone(server.download(folder=buf, opt=opt))
-      buf.close()
-
-  def test_Streamtape(self) -> None:
-    servers = [e for e in self.episodio.links if isinstance(e, Streamtape)]
-
-    if len(servers) == 0:
-      self.skipTest('Il server Streamtape non esiste in questo episodio.')
-      return
-    
-    server = servers[0]
-    
-    self.assertEqual(server.Nid, 8)
-    self.assertEqual(server.name, "Streamtape")
-
-    
-    self.assertIsInstance(server.fileLink(), str)    
-
-    info = server.fileInfo()
-    self.assertIsInstance(info, dict)
-    self.assertIn("content_type", info)
-    self.assertIn("total_bytes", info)
-    self.assertIn("last_modified", info)
-    self.assertIn("server_name", info)
-    self.assertIn("server_id", info)
-    self.assertIn("url", info)
-
-    with self.subTest('Streamtape Download'):
       buf = io.BytesIO()
       opt = []
       Thread(target=self.stopDownload, args=(opt,)).start()

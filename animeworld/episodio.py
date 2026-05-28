@@ -8,8 +8,8 @@ import time
 import io
 
 from .utility import SES
-from .exceptions import ServerNotSupported, HardStoppedDownload
-from .servers import AnimeWorld_Server, YouTube, Streamtape
+from .exceptions import ServerNotSupported
+from .servers import AnimeWorld_Server
 from .servers.Server import Server
 
 class Episodio:
@@ -22,19 +22,19 @@ class Episodio:
       L'attributo `number` è di tipo `str` perchè è possibile che capitino episodi con un numero composto (es. `5.5`, `268-269`), è un caso molto raro ma possibile.
     """
 
-    def __init__(self, number: str, link: str, legacy: List[Dict] = []):
+    def __init__(self, ep_number: str, ep_id: str, data: List[Dict] = []):
         """
         Args:
-          number: Numero dell'episodio.
-          link: Link dell'endpoint dell'episodio.
-          legacy: Lista di tutti i link dei server in cui sono hostati gli episodi.
+          ep_number: Numero dell'episodio.
+          ep_id: Numerazione globale dell'episodio.
+          data: Lista delle informazioni per scaricare l'episodio per ogni server trovato.
         """
-        self.number:str = number 
-        self.__link = link
-        self.__legacy = legacy
+        self.number:str = ep_number
+        self.__id:str = ep_id
+        self.__data:List[Dict] = data
 
     @property
-    def links(self) -> List[Server]: # lista dei provider dove sono hostati gli ep
+    def links(self) -> Iterator[Server]: # lista dei provider dove sono hostati gli ep
         """
         Ottiene la lista dei server in cui è hostato l'episodio.
 
@@ -49,24 +49,26 @@ class Episodio:
           ]
           ```
         """
-        tmp = [] # tutti i links
-        res = SES.post(self.__link, timeout=(3, 27), follow_redirects=True)
-        data = res.json()
 
-        for provID in data["links"]:
-            key = [x for x in data["links"][provID].keys() if x != 'server'][0]
-            tmp.append({
-                "id": int(provID),
-                "name": data["links"][provID]["server"]["name"],
-                "link": data["links"][provID][key]["link"]
-            })
-        
-        for prov in self.__legacy:
-            if str(prov['id']) in data["links"].keys(): continue
+        for info in self.__data:
+            data_id = info.get('id')
+            server_id = info.get('serverId')
+            server_name = info.get('serverName')
 
-            tmp.append(prov)
+            res = SES.get('/api/episode/info', params={'id': data_id, 'alt': 0})
+            res.raise_for_status()
+            data = res.json()
 
-        return self.__setServer(tmp, self.number)
+            if 'grabber' not in data: continue
+
+            match server_id:
+                # AnimeWorld Server
+                case 9:
+                    yield AnimeWorld_Server(data['grabber'], server_id, server_name, self.number)
+                # Server generico
+                case _:
+                    yield Server(data['grabber'], server_id, server_name, self.number)
+
 
     def fileInfo(self) -> Dict[str,str]:
         """
@@ -137,49 +139,6 @@ class Episodio:
         """
 
         return self.__choiceBestServer().download(title,folder,hook=hook,opt=opt)
-
-    # Private
-    def __setServer(self, links: List[Dict], numero: str) -> List[Server]: # Per ogni link li posizioni nelle rispettive classi
-        """
-        Costruisce la rispettiva classe Server per ogni link passato.
-
-        Args:        
-          links: Dizionario ('id', 'name', 'link') contenente le informazioni del Server in cui è hostato l'episodio.
-          numero: Numero dell'episodio.
-        
-        Returns:
-          Lista di oggetti Server.
-
-        Example:
-          ```py
-          return [
-            Server, # Classe Server
-            ...
-          ]
-          ```
-        """
-        ret: List[Server] = [] # lista dei server
-        for prov in links:
-            if prov["id"] == 4:
-                ret.append(YouTube(prov["link"], prov["id"], prov["name"], numero))
-            elif prov["id"] == 9:
-                ret.append(AnimeWorld_Server(prov["link"], prov["id"], prov["name"], numero))
-            elif prov["id"] == 8:
-                ret.append(Streamtape(prov["link"], prov["id"], prov["name"], numero))
-            else:
-                ret.append(Server(prov["link"], prov["id"], prov["name"], numero))
-        ret.sort(key=self.__sortServer)
-        return ret
-
-    # Private
-    def __sortServer(self, elem):
-        """
-        Ordina i server per importanza.
-        """
-        if isinstance(elem, YouTube): return 0
-        elif isinstance(elem, AnimeWorld_Server): return 1
-        elif isinstance(elem, Streamtape): return 2
-        else: return 4
     
     def __choiceBestServer(self) -> Server:
         """
@@ -188,28 +147,4 @@ class Episodio:
         Returns:
           Il Server più veloce.
         """
-        servers = self.links
-
-        speed_test = [{
-            "server": x,
-            "bytes": -1
-        } for x in servers]
-
-        max_time = 0.5 # numero di secondi massimo
-
-        for test in speed_test:
-            try:
-                start = time.perf_counter()
-                link = test["server"].fileLink()
-                if not link: continue
-                with SES.stream("GET", link, timeout=0.9, follow_redirects=True) as r:
-                    for chunk in r.iter_bytes(chunk_size = 2048):
-                        if time.perf_counter() - start > max_time: break
-                        test["bytes"] += len(chunk)
-            except (ServerNotSupported, httpx.HTTPError):
-                continue
-        
-        speed_test = [x for x in speed_test if x["bytes"] != -1] # tolgo tutti i server che hanno generato un eccezione
-        if len(speed_test) == 0: return servers[0] # ritorno al caso standard
-
-        return max(speed_test, key=lambda x: x["bytes"])["server"] # restituisco il server che ha scaricato più byte in `max_time` secondi
+        return next(self.links) # ritorno il primo server, che è quello più veloce (viene ordinato in __sortServer)
